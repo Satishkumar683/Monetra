@@ -20,35 +20,49 @@ export const authOptions = {
 
   callbacks: {
     async signIn({ user }) {
-      try {
-        // Connect to MongoDB
-        await connectDB();
+  try {
+    console.log("========== SIGN IN START ==========");
 
-        // Check if user already exists
-        const existingUser = await User.findOne({
-          email: user.email,
-        });
+    console.log("Connecting DB...");
+    await connectDB();
+    console.log("DB Connected");
 
-        // Create new user if not found
-        if (!existingUser) {
-          await User.create({
-            name: user.name,
-            email: user.email,
-            image: user.image,
-            username: user.email.split("@")[0],
-          });
+    console.log("Finding user:", user.email);
 
-          console.log("New user created");
-        } else {
-          console.log("User already exists");
-        }
+    const existingUser = await User.findOne({
+      email: user.email,
+    });
 
-        return true;
-      } catch (error) {
-        console.error("SignIn Error:", error);
-        return false;
-      }
-    },
+    console.log("Existing User:", existingUser);
+
+    if (!existingUser) {
+      console.log("Creating new user...");
+
+      await User.create({
+        name: user.name,
+        email: user.email,
+        image: user.image,
+        username: user.email.split("@")[0],
+      });
+
+      console.log("User created successfully");
+    }
+
+    console.log("Returning TRUE");
+    return true;
+  } catch (error) {
+    console.error("========== SIGN IN ERROR ==========");
+    console.error(error);
+    console.error(error.stack);
+    return false;
+  }
+},
+        
+
+      
+  
+     
+   
 
     async jwt({ token, user }) {
       // On initial sign-in, "user" is available; on later requests it isn't,
