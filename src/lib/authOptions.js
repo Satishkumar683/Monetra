@@ -20,45 +20,36 @@ export const authOptions = {
 
   callbacks: {
     async signIn({ user }) {
-      return true;
-  // try {
-  //   console.log("========== SIGN IN START ==========");
+  try {
+    console.log("1. Connecting DB");
+    await connectDB();
 
-  //   console.log("Connecting DB...");
-  //   await connectDB();
-  //   console.log("DB Connected");
+    console.log("2. Finding user");
+    const existingUser = await User.findOne({
+      email: user.email,
+    });
 
-  //   console.log("Finding user:", user.email);
+    console.log("Existing:", existingUser);
 
-  //   const existingUser = await User.findOne({
-  //     email: user.email,
-  //   });
+    if (!existingUser) {
+      console.log("3. Creating user");
 
-  //   console.log("Existing User:", existingUser);
+      await User.create({
+        name: user.name,
+        email: user.email,
+        image: user.image,
+      });
 
-  //   if (!existingUser) {
-  //     console.log("Creating new user...");
+      console.log("4. User created");
+    }
 
-  //     await User.create({
-  //       name: user.name,
-  //       email: user.email,
-  //       image: user.image,
-  //       username: user.email.split("@")[0],
-  //     });
-
-  //     console.log("User created successfully");
-  //   }
-
-  //   console.log("Returning TRUE");
-  //   return true;
-  // } catch (error) {
-  //   console.error("========== SIGN IN ERROR ==========");
-  //   console.error(error);
-  //   console.error(error.stack);
-  //   return false;
-  // }
-},
-        
+    console.log("5. Returning true");
+    return true;
+  } catch (err) {
+    console.error(err);
+    return false;
+  }
+}, 
 
       
   
