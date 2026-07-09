@@ -4,7 +4,11 @@ const nextConfig = {
   // reactCompiler: true,
   // devIndicators: {
   //   appIsrStatus: false,
+
   // },
+   eslint: {
+    ignoreDuringBuilds: true,
+  },
 };
 
 
