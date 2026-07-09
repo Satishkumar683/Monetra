@@ -20,42 +20,43 @@ export const authOptions = {
 
   callbacks: {
     async signIn({ user }) {
-  try {
-    console.log("========== SIGN IN START ==========");
+      return true;
+  // try {
+  //   console.log("========== SIGN IN START ==========");
 
-    console.log("Connecting DB...");
-    await connectDB();
-    console.log("DB Connected");
+  //   console.log("Connecting DB...");
+  //   await connectDB();
+  //   console.log("DB Connected");
 
-    console.log("Finding user:", user.email);
+  //   console.log("Finding user:", user.email);
 
-    const existingUser = await User.findOne({
-      email: user.email,
-    });
+  //   const existingUser = await User.findOne({
+  //     email: user.email,
+  //   });
 
-    console.log("Existing User:", existingUser);
+  //   console.log("Existing User:", existingUser);
 
-    if (!existingUser) {
-      console.log("Creating new user...");
+  //   if (!existingUser) {
+  //     console.log("Creating new user...");
 
-      await User.create({
-        name: user.name,
-        email: user.email,
-        image: user.image,
-        username: user.email.split("@")[0],
-      });
+  //     await User.create({
+  //       name: user.name,
+  //       email: user.email,
+  //       image: user.image,
+  //       username: user.email.split("@")[0],
+  //     });
 
-      console.log("User created successfully");
-    }
+  //     console.log("User created successfully");
+  //   }
 
-    console.log("Returning TRUE");
-    return true;
-  } catch (error) {
-    console.error("========== SIGN IN ERROR ==========");
-    console.error(error);
-    console.error(error.stack);
-    return false;
-  }
+  //   console.log("Returning TRUE");
+  //   return true;
+  // } catch (error) {
+  //   console.error("========== SIGN IN ERROR ==========");
+  //   console.error(error);
+  //   console.error(error.stack);
+  //   return false;
+  // }
 },
         
 
