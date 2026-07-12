@@ -19,7 +19,7 @@ export const authOptions = {
   secret: process.env.NEXTAUTH_SECRET,
 
   callbacks: {
-   async signIn({ user }) {
+  async signIn({ user }) {
   try {
     await connectDB();
 
@@ -28,10 +28,16 @@ export const authOptions = {
     });
 
     if (!existingUser) {
+      const username = user.email
+        .split("@")[0]
+        .toLowerCase()
+        .replace(/[^a-z0-9]/g, "");
+
       await User.create({
         name: user.name,
         email: user.email,
-        image: user.image, // keep only URL, not base64
+        image: user.image,
+        username,
       });
     }
 
