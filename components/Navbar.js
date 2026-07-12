@@ -9,7 +9,7 @@ const Navbar = () => {
   
   return (
 
-    <div className="text-gray-100 body-font  sticky top-0 z-50  backdrop-blur-md ">
+    <div className="text-gray-60 bg-black body-font  sticky top-0 z-50  backdrop-blur-md ">
       <div className="w-full px-8 flex flex-col md:flex-row items-center justify-between">
         <a className="flex title-font  font-medium items-center text-gray-900 mb-4 md:mb-0">
           <svg className="text-white"
