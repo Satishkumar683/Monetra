@@ -80,14 +80,7 @@ Every authenticated user has access to a personalized dashboard featuring:
 
 ---
 
-### ☁️ Cloudinary Integration
 
-* Campaign cover image upload
-* Profile picture upload
-* Optimized cloud image delivery
-* Secure image management
-
----
 
 ### 💳 Razorpay Integration
 
@@ -153,9 +146,6 @@ Every authenticated user has access to a personalized dashboard featuring:
 
 * Razorpay
 
-### Cloud Storage
-
-* Cloudinary
 
 ### Deployment
 
