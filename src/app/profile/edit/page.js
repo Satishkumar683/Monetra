@@ -118,13 +118,14 @@ export default function EditProfilePage() {
       });
       const data = await res.json();
 
-      if (data.success) {
-        setSuccess(true);
-        if (update) {
-          await update();
-        }
-        setTimeout(() => router.push("/profile"), 800);
-      } else {
+    
+if (data.success) {
+  setSuccess(true);
+
+  await update();
+
+  router.push("/profile");
+}else {
         setError(data.message || "Could not update profile.");
       }
     } catch (err) {

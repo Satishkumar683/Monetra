@@ -164,9 +164,13 @@ export default function ProfilePage() {
                 )}
 
                 <div className="flex flex-wrap items-center justify-center sm:justify-start gap-x-5 gap-y-1 mt-4 text-sm text-slate-500">
-                  {session.user.location && (
-                    <span>📍 {session.user.location}</span>
-                  )}
+                  {(session.user.city || session.user.country) && (
+  <span>
+    📍 {[session.user.city, session.user.country]
+      .filter(Boolean)
+      .join(", ")}
+  </span>
+)}
                   {joinedDate && <span>📅 Joined {joinedDate}</span>}
                 </div>
               </div>

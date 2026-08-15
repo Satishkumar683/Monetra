@@ -65,8 +65,14 @@ export const authOptions = {
 
     if (dbUser) {
       token.id = dbUser._id.toString();
+      token.name = dbUser.name;
+      token.email = dbUser.email;
+      token.image = dbUser.image;
+      token.bio = dbUser.bio;
+      token.city = dbUser.city;
+      token.country = dbUser.country;
+      token.createdAt = dbUser.createdAt;
     }
-
   } catch (error) {
     console.error("JWT callback error:", error);
   }
@@ -75,9 +81,15 @@ export const authOptions = {
 },
 
   async session({ session, token }) {
-
-  if (token) {
+  if (session.user) {
     session.user.id = token.id;
+    session.user.name = token.name;
+    session.user.email = token.email;
+    session.user.image = token.image;
+    session.user.bio = token.bio;
+    session.user.city = token.city;
+    session.user.country = token.country;
+    session.user.createdAt = token.createdAt;
   }
 
   return session;
