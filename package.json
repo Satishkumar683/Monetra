@@ -9,11 +9,13 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "cloudinary": "^2.10.0",
     "country-state-city": "^3.2.1",
     "lucide-react": "^1.23.0",
     "mongoose": "^8.24.1",
     "next": "^15.5.4",
     "next-auth": "^4.24.14",
+    "next-cloudinary": "^6.18.8",
     "razorpay": "^2.9.6",
     "react": "^19.1.0",
     "react-dom": "^19.1.0"

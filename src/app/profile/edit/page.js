@@ -63,34 +63,88 @@ export default function EditProfilePage() {
     setCities(match ? City.getCitiesOfCountry(match.isoCode) || [] : []);
   }
 
-  function handleImageChange(e) {
-    const file = e.target.files?.[0];
-    if (!file) return;
+ async function handleImageChange(e) {
+  const file = e.target.files?.[0];
 
-    setError("");
+  if (!file) return;
 
-    if (!file.type.startsWith("image/")) {
-      setError("Please select an image file.");
-      return;
-    }
+  setError("");
 
-    const sizeMB = file.size / (1024 * 1024);
-    if (sizeMB > MAX_IMAGE_SIZE_MB) {
-      setError(`Image must be under ${MAX_IMAGE_SIZE_MB}MB. This file is ${sizeMB.toFixed(1)}MB.`);
-      return;
-    }
-
-    const reader = new FileReader();
-    reader.onload = () => {
-      setProfileImage(reader.result);
-      setImagePreview(reader.result);
-      setImageName(file.name);
-    };
-    reader.onerror = () => {
-      setError("Could not read that image. Please try a different file.");
-    };
-    reader.readAsDataURL(file);
+  if (!file.type.startsWith("image/")) {
+    setError("Please select an image file.");
+    return;
   }
+
+  const sizeMB = file.size / (1024 * 1024);
+
+  if (sizeMB > MAX_IMAGE_SIZE_MB) {
+    setError(
+      `Image must be under ${MAX_IMAGE_SIZE_MB}MB. This file is ${sizeMB.toFixed(
+        1
+      )}MB.`
+    );
+    return;
+  }
+
+  try {
+    setImageName(file.name);
+
+    const timestamp = Math.floor(Date.now() / 1000);
+
+    const paramsToSign = {
+      timestamp,
+      folder: "monetra/profiles",
+    };
+
+    const signRes = await fetch("/api/cloudinary/sign", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        paramsToSign,
+      }),
+    });
+
+    const signData = await signRes.json();
+
+    if (!signRes.ok) {
+      throw new Error(signData.error || "Could not sign upload");
+    }
+
+    const formData = new FormData();
+
+    formData.append("file", file);
+    formData.append(
+      "api_key",
+      process.env.NEXT_PUBLIC_CLOUDINARY_API_KEY
+    );
+    formData.append("timestamp", timestamp);
+    formData.append("folder", "monetra/profiles");
+    formData.append("signature", signData.signature);
+
+    const uploadRes = await fetch(
+      `https://api.cloudinary.com/v1_1/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload`,
+      {
+        method: "POST",
+        body: formData,
+      }
+    );
+
+    const uploadData = await uploadRes.json();
+
+    if (!uploadRes.ok) {
+      throw new Error(uploadData.error?.message || "Image upload failed");
+    }
+
+    setProfileImage(uploadData.secure_url);
+    setImagePreview(uploadData.secure_url);
+  } catch (error) {
+    console.error(error);
+    setError("Could not upload image. Please try again.");
+  }
+}
+  
 
   async function handleSubmit(e) {
     e.preventDefault();

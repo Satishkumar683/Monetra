@@ -20,38 +20,33 @@ export const authOptions = {
 
   callbacks: {
   async signIn({ user }) {
-  try {
-    await connectDB();
+    try {
+      await connectDB();
 
-    const existingUser = await User.findOne({
-      email: user.email,
-    });
-
-    if (!existingUser) {
-      const username = user.email
-        .split("@")[0]
-        .toLowerCase()
-        .replace(/[^a-z0-9]/g, "");
-
-      await User.create({
-        name: user.name,
+      const existingUser = await User.findOne({
         email: user.email,
-        image: user.image,
-        username,
       });
+
+      if (!existingUser) {
+        const username = user.email
+          .split("@")[0]
+          .toLowerCase()
+          .replace(/[^a-z0-9]/g, "");
+
+        await User.create({
+          name: user.name,
+          email: user.email,
+          image: user.image,
+          username,
+        });
+      }
+
+      return true;
+    } catch (err) {
+      console.error("SignIn error:", err);
+      return false;
     }
-
-    return true;
-
-  } catch (err) {
-    console.error("SignIn error:", err);
-    return false;
-  }
-},
-      
-  
-     
-   
+  },
 
   async jwt({ token, user }) {
   const email = user?.email || token?.email;
@@ -67,7 +62,6 @@ export const authOptions = {
       token.id = dbUser._id.toString();
       token.name = dbUser.name;
       token.email = dbUser.email;
-      token.image = dbUser.image;
       token.bio = dbUser.bio;
       token.city = dbUser.city;
       token.country = dbUser.country;
@@ -81,18 +75,18 @@ export const authOptions = {
 },
 
   async session({ session, token }) {
-  if (session.user) {
-    session.user.id = token.id;
-    session.user.name = token.name;
-    session.user.email = token.email;
-    session.user.image = token.image;
-    session.user.bio = token.bio;
-    session.user.city = token.city;
-    session.user.country = token.country;
-    session.user.createdAt = token.createdAt;
-  }
+    if (session.user) {
+      session.user.id = token.id;
+      session.user.name = token.name;
+      session.user.email = token.email;
+      session.user.image = token.image;
+      session.user.bio = token.bio;
+      session.user.city = token.city;
+      session.user.country = token.country;
+      session.user.createdAt = token.createdAt;
+    }
 
-  return session;
-},
+    return session;
   },
+},
 };
