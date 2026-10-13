@@ -314,12 +314,12 @@ export default function ProfilePage() {
         )}
 
         {activeTab === "donations" && (
-          <section className="rounded-2xl border border-white/10 bg-white/[0.03] p-6">
-            <h2 className="text-lg font-semibold text-white mb-4">
+          <section className="rounded-3xl border-2 border-black bg-white text-slate-900 p-6 sm:p-7 shadow-solid-lg">
+            <h2 className="font-editorial text-xl font-black text-slate-950 mb-4">
               Donation History
             </h2>
             {donationsLoading ? (
-              <p className="text-slate-400">Loading...</p>
+              <p className="text-slate-500 font-medium">Loading...</p>
             ) : (
               <DonationHistory donations={donations} />
             )}
@@ -327,53 +327,54 @@ export default function ProfilePage() {
         )}
 
         {activeTab === "analytics" && (
-          <section className="rounded-2xl border border-white/10 bg-white/[0.03] p-6">
-            <h2 className="text-lg font-semibold text-white mb-5">
-              Analytics
+          <section className="rounded-3xl border-2 border-black bg-white text-slate-900 p-6 sm:p-7 shadow-solid-lg">
+            <h2 className="font-editorial text-xl font-black text-slate-950 mb-5">
+              Campaign & Giving Analytics
             </h2>
 
             {fundraisers.length === 0 && donations.length === 0 ? (
-              <p className="text-slate-400">
-                Not enough activity yet to show analytics.
-              </p>
+              <div className="rounded-2xl border-2 border-black bg-slate-50 p-8 text-center shadow-solid-sm">
+                <p className="text-slate-600 font-medium">
+                  Not enough activity yet to show analytics.
+                </p>
+              </div>
             ) : (
               <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                <div className="rounded-xl border border-white/10 bg-white/[0.03] p-4">
-                  <p className="text-xs text-slate-500">Active Campaigns</p>
-                  <p className="text-xl font-bold text-white mt-1">
+                <div className="rounded-2xl border-2 border-black bg-slate-50 p-4 shadow-solid-sm">
+                  <p className="text-xs font-bold text-slate-500">Active Campaigns</p>
+                  <p className="font-editorial text-2xl font-black text-slate-950 mt-1">
                     {activeCampaigns}
                   </p>
                 </div>
-                <div className="rounded-xl border border-white/10 bg-white/[0.03] p-4">
-                  <p className="text-xs text-slate-500">Closed Campaigns</p>
-                  <p className="text-xl font-bold text-white mt-1">
+                <div className="rounded-2xl border-2 border-black bg-slate-50 p-4 shadow-solid-sm">
+                  <p className="text-xs font-bold text-slate-500">Closed Campaigns</p>
+                  <p className="font-editorial text-2xl font-black text-slate-950 mt-1">
                     {closedCampaigns}
                   </p>
                 </div>
-                <div className="rounded-xl border border-white/10 bg-white/[0.03] p-4">
-                  <p className="text-xs text-slate-500">Overall Success Rate</p>
-                  <p className="text-xl font-bold text-emerald-400 mt-1">
+                <div className="rounded-2xl border-2 border-black bg-slate-50 p-4 shadow-solid-sm">
+                  <p className="text-xs font-bold text-slate-500">Overall Success Rate</p>
+                  <p className="font-editorial text-2xl font-black text-emerald-700 mt-1">
                     {overallSuccessRate}%
                   </p>
                 </div>
-                <div className="rounded-xl border border-white/10 bg-white/[0.03] p-4">
-                  <p className="text-xs text-slate-500">Avg. Donation Made</p>
-                  <p className="text-xl font-bold text-white mt-1">
+                <div className="rounded-2xl border-2 border-black bg-slate-50 p-4 shadow-solid-sm">
+                  <p className="text-xs font-bold text-slate-500">Avg. Donation Made</p>
+                  <p className="font-editorial text-2xl font-black text-slate-950 mt-1">
                     ₹{avgDonation.toLocaleString()}
                   </p>
                 </div>
 
                 {topFundraiser && (
-                  <div className="col-span-2 lg:col-span-4 rounded-xl border border-white/10 bg-white/[0.03] p-4">
-                    <p className="text-xs text-slate-500">
-                      Top Performing Campaign
-                    </p>
-                    <p className="text-white font-medium mt-1">
+                  <div className="col-span-2 lg:col-span-4 rounded-2xl border-2 border-black bg-slate-50 p-5 shadow-solid-sm">
+                    <span className="inline-block rounded-full bg-[#22c55e] border border-black px-2.5 py-0.5 text-[10px] font-black text-slate-950 mb-2">
+                      ✦ Top Performing Campaign
+                    </span>
+                    <p className="font-editorial text-base font-black text-slate-950 mt-1">
                       {topFundraiser.title}
                     </p>
-                    <p className="text-sm text-slate-400 mt-0.5">
-                      ₹{(topFundraiser.currentAmount || 0).toLocaleString()} raised
-                      of ₹{(topFundraiser.targetAmount || 0).toLocaleString()} goal
+                    <p className="text-xs font-bold text-slate-600 mt-1">
+                      ₹{(topFundraiser.currentAmount || 0).toLocaleString()} raised of ₹{(topFundraiser.targetAmount || 0).toLocaleString()} goal
                     </p>
                   </div>
                 )}

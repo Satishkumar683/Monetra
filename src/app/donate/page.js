@@ -493,15 +493,15 @@ function FundraiserGrid({ selectedCategory, onSelectCategory }) {
           </button>
         </div>
       ) : fundraisers.length === 0 ? (
-        <div className="text-center py-16 rounded-3xl border border-white/10 bg-white/[0.02] p-8">
-          <div className="w-12 h-12 mx-auto rounded-full bg-white/5 flex items-center justify-center text-slate-400 mb-4">
+        <div className="text-center py-16 rounded-3xl border-2 border-black bg-white p-8 shadow-solid-lg">
+          <div className="w-12 h-12 mx-auto rounded-full border-2 border-black bg-slate-100 flex items-center justify-center text-slate-700 mb-4 shadow-solid-sm">
             <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <circle cx="11" cy="11" r="8" />
               <path d="m21 21-4.3-4.3" />
             </svg>
           </div>
-          <h3 className="text-lg font-semibold text-white">No campaigns found</h3>
-          <p className="text-slate-400 text-xs mt-1 max-w-sm mx-auto">
+          <h3 className="font-editorial text-xl font-black text-slate-950">No campaigns found</h3>
+          <p className="text-slate-600 text-xs mt-1.5 max-w-sm mx-auto font-medium">
             {search || category !== "All"
               ? "We couldn't find any fundraisers matching your filters. Try clearing your search or switching categories."
               : "No active fundraisers yet. Be the first to start one!"}
@@ -509,9 +509,9 @@ function FundraiserGrid({ selectedCategory, onSelectCategory }) {
           {(search || category !== "All" || sortBy !== "recent") && (
             <button
               onClick={handleResetFilters}
-              className="mt-5 rounded-full border border-emerald-500/40 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 text-xs font-semibold px-5 py-2 transition-colors"
+              className="mt-5 rounded-xl border-2 border-black bg-[#22c55e] hover:bg-[#16a34a] text-slate-950 text-xs font-black px-5 py-2.5 shadow-solid-sm hover:translate-y-0.5 active:translate-y-1 transition-all cursor-pointer"
             >
-              Clear All Filters
+              Clear All Filters ✦
             </button>
           )}
         </div>
