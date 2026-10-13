@@ -7,6 +7,7 @@ import { connectDB } from "@/lib/mongodb";
 import Donation from "@/models/Donation";
 import Fundraiser from "@/models/Fundraiser";
 import User from "@/models/User";
+import { verifyPaymentSchema, validateBody } from "@/lib/validations";
 
 export async function POST(req) {
   try {
@@ -19,6 +20,13 @@ export async function POST(req) {
     }
 
     const body = await req.json();
+    const validation = validateBody(verifyPaymentSchema, body);
+    if (!validation.success) {
+      return NextResponse.json(
+        { success: false, message: validation.error },
+        { status: 400 }
+      );
+    }
     const {
       razorpay_order_id,
       razorpay_payment_id,
@@ -27,20 +35,7 @@ export async function POST(req) {
       amount,
       message,
       anonymous,
-    } = body;
-
-    if (
-      !razorpay_order_id ||
-      !razorpay_payment_id ||
-      !razorpay_signature ||
-      !fundraiserId ||
-      !amount
-    ) {
-      return NextResponse.json(
-        { success: false, message: "Missing payment verification fields." },
-        { status: 400 }
-      );
-    }
+    } = validation.data;
 
     if (!mongoose.Types.ObjectId.isValid(fundraiserId)) {
       return NextResponse.json(
@@ -64,6 +59,18 @@ export async function POST(req) {
     }
 
     await connectDB();
+
+    // Idempotency check: if webhook already processed this paymentId, don't double count
+    const existing = await Donation.findOne({ paymentId: razorpay_payment_id });
+    if (existing) {
+      const existingFundraiser = await Fundraiser.findById(fundraiserId);
+      return NextResponse.json({
+        success: true,
+        donation: existing,
+        fundraiser: existingFundraiser,
+        message: "Payment already verified",
+      });
+    }
 
     const user = await User.findOne({ email: session.user.email });
     if (!user) {
@@ -98,6 +105,16 @@ export async function POST(req) {
       { $inc: { currentAmount: Number(amount) } },
       { new: true }
     );
+
+    // Edge cache invalidation for immediate UI freshness
+    try {
+      const { revalidatePath } = await import("next/cache");
+      revalidatePath(`/fundraiser/${fundraiserId}`);
+      revalidatePath("/donate");
+      revalidatePath("/");
+    } catch (e) {
+      console.warn("revalidatePath notice:", e?.message);
+    }
 
     return NextResponse.json({
       success: true,

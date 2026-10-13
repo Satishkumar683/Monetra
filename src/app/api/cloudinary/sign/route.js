@@ -1,4 +1,5 @@
 import { v2 as cloudinary } from "cloudinary";
+import { cloudinarySignSchema, validateBody } from "@/lib/validations";
 
 cloudinary.config({
   cloud_name: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
@@ -8,7 +9,15 @@ cloudinary.config({
 
 export async function POST(req) {
   try {
-    const { paramsToSign } = await req.json();
+    const body = await req.json();
+    const validation = validateBody(cloudinarySignSchema, body);
+    if (!validation.success) {
+      return Response.json(
+        { success: false, message: validation.error },
+        { status: 400 }
+      );
+    }
+    const { paramsToSign } = validation.data;
 
     const signature = cloudinary.utils.api_sign_request(
       paramsToSign,

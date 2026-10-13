@@ -47,6 +47,9 @@ const DonationSchema = new Schema(
   }
 );
 
+DonationSchema.index({ fundraiser: 1, createdAt: -1 });
+DonationSchema.index({ donor: 1, createdAt: -1 });
+
 const Donation =
   mongoose.models.Donation || mongoose.model("Donation", DonationSchema);
 

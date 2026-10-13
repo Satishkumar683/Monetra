@@ -4,24 +4,38 @@
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
+import { useSession } from "next-auth/react";
+import ProgressBar from "../../../../components/ProgressBar";
+import { optimizeImage } from "@/lib/imageUtils";
 
-function ProgressBar({ percent }) {
-  return (
-    <div className="w-full h-3 rounded-full bg-white/10 overflow-hidden">
-      <div
-        className="h-full bg-emerald-400 rounded-full transition-all"
-        style={{ width: `${Math.min(percent, 100)}%` }}
-      />
-    </div>
-  );
-}
-
-function DonateBox({ fundraiserId, onDonationSuccess }) {
+function DonateBox({ fundraiserId, verificationStatus = "verified", onDonationSuccess }) {
   const [amount, setAmount] = useState("");
   const [message, setMessage] = useState("");
   const [anonymous, setAnonymous] = useState(false);
   const [status, setStatus] = useState("idle"); // idle | loading-script | processing | done | error
   const [errorMsg, setErrorMsg] = useState("");
+
+  if (verificationStatus !== "verified") {
+    return (
+      <div className="rounded-2xl border border-amber-500/30 bg-amber-500/5 p-6 text-center space-y-3">
+        <div className="w-12 h-12 mx-auto rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-300 flex items-center justify-center text-xl">
+          ⏳
+        </div>
+        <div>
+          <h3 className="text-white font-semibold text-base">Donations Locked</h3>
+          <p className="text-xs text-slate-300 mt-1 leading-relaxed">
+            This campaign is currently undergoing trust & verification review by Monetra. Donations will unlock automatically once verified.
+          </p>
+        </div>
+        <div className="pt-2 border-t border-white/5 flex items-center justify-center gap-2 text-[11px] text-amber-400 font-medium">
+          <svg className="w-3.5 h-3.5" viewBox="0 0 20 20" fill="currentColor">
+            <path fillRule="evenodd" d="M10 1a4.5 4.5 0 00-4.5 4.5V9H5a2 2 0 00-2 2v6a2 2 0 002 2h10a2 2 0 002-2v-6a2 2 0 00-2-2h-.5V5.5A4.5 4.5 0 0010 1zm3 8V5.5a3 3 0 10-6 0V9h6z" clipRule="evenodd" />
+          </svg>
+          Protected by Monetra Trust Desk
+        </div>
+      </div>
+    );
+  }
 
   function loadRazorpayScript() {
     return new Promise((resolve) => {
@@ -57,7 +71,12 @@ function DonateBox({ fundraiserId, onDonationSuccess }) {
       const orderRes = await fetch("/api/payment/create-order", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ fundraiserId, amount: Number(amount) }),
+        body: JSON.stringify({
+          fundraiserId,
+          amount: Number(amount),
+          message,
+          anonymous,
+        }),
       });
       const orderData = await orderRes.json();
 
@@ -134,11 +153,14 @@ function DonateBox({ fundraiserId, onDonationSuccess }) {
 
   if (status === "done") {
     return (
-      <div className="rounded-2xl border border-emerald-500/30 bg-emerald-500/5 p-6 text-center">
-        <p className="text-emerald-400 font-semibold">
+      <div className="rounded-3xl border-2 border-black bg-white text-slate-900 p-8 text-center shadow-solid-lg">
+        <span className="w-12 h-12 mx-auto rounded-full bg-[#22c55e] border-2 border-black text-slate-950 font-black flex items-center justify-center text-xl shadow-solid-sm mb-3">
+          ✓
+        </span>
+        <h3 className="font-editorial text-2xl font-black text-slate-950">
           Thank you for your support!
-        </p>
-        <p className="text-sm text-slate-400 mt-1">
+        </h3>
+        <p className="text-xs text-slate-600 font-medium mt-1">
           Your payment was verified and your donation has been recorded.
         </p>
       </div>
@@ -148,41 +170,66 @@ function DonateBox({ fundraiserId, onDonationSuccess }) {
   return (
     <form
       onSubmit={handleDonate}
-      className="rounded-2xl border border-white/10 bg-white/[0.03] p-6 space-y-4"
+      className="rounded-3xl border-2 border-black bg-white text-slate-900 p-6 sm:p-7 space-y-4 shadow-solid-lg"
     >
-      <h3 className="text-white font-semibold text-lg">Make a Donation</h3>
+      <div className="flex items-center justify-between pb-3 border-b-2 border-slate-100">
+        <h3 className="font-editorial text-xl font-black text-slate-950">Make a Donation</h3>
+        <span className="rounded-full bg-[#22c55e] border border-black text-slate-950 font-black text-[11px] px-2.5 py-0.5 shadow-[0_1px_0_#000]">
+          ✓ VERIFIED
+        </span>
+      </div>
+
+      {/* Quick Amount Pills */}
+      <div className="grid grid-cols-4 gap-2 pt-1">
+        {[500, 1000, 2500, 5000].map((amt) => (
+          <button
+            key={amt}
+            type="button"
+            onClick={() => setAmount(String(amt))}
+            className={`rounded-xl border-2 border-black py-2 text-xs font-black shadow-solid-sm transition-all cursor-pointer ${
+              amount === String(amt)
+                ? "bg-[#22c55e] text-slate-950"
+                : "bg-slate-50 text-slate-800 hover:bg-slate-100"
+            }`}
+          >
+            ₹{amt.toLocaleString()}
+          </button>
+        ))}
+      </div>
 
       <div>
-        <label className="block text-sm text-slate-300 mb-2">Amount (₹)</label>
+        <label className="block font-editorial text-xs font-black text-slate-950 mb-1.5">
+          Custom Amount (₹)
+        </label>
         <input
           type="number"
           min="1"
           value={amount}
           onChange={(e) => setAmount(e.target.value)}
-          placeholder="500"
-          className="w-full rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 text-white placeholder:text-slate-500 focus:outline-none focus:border-emerald-500/60"
+          placeholder="e.g. 1000"
+          className="w-full rounded-2xl border-2 border-black bg-slate-50 px-4 py-3 text-slate-950 font-black text-base placeholder:text-slate-400 focus:bg-white focus:outline-none shadow-[0_2px_0_#000]"
         />
       </div>
 
       <div>
-        <label className="block text-sm text-slate-300 mb-2">
-          Message (optional)
+        <label className="block font-editorial text-xs font-black text-slate-950 mb-1.5">
+          Words of Encouragement (optional)
         </label>
         <textarea
-          rows={3}
+          rows={2}
           value={message}
           onChange={(e) => setMessage(e.target.value)}
-          placeholder="Leave a note of support..."
-          className="w-full rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 text-white placeholder:text-slate-500 focus:outline-none focus:border-emerald-500/60 resize-none"
+          placeholder="Leave a prayer or message of strength..."
+          className="w-full rounded-2xl border-2 border-black bg-slate-50 px-4 py-2.5 text-slate-950 font-medium text-xs placeholder:text-slate-400 focus:bg-white focus:outline-none shadow-[0_2px_0_#000] resize-none"
         />
       </div>
 
-      <label className="flex items-center gap-2 text-sm text-slate-300">
+      <label className="flex items-center gap-2 text-xs font-bold text-slate-700 cursor-pointer">
         <input
           type="checkbox"
           checked={anonymous}
           onChange={(e) => setAnonymous(e.target.checked)}
-          className="rounded border-white/20 bg-white/5"
+          className="w-4 h-4 rounded border-2 border-black text-emerald-600 focus:ring-0 cursor-pointer"
         />
         Donate anonymously
       </label>
@@ -190,95 +237,321 @@ function DonateBox({ fundraiserId, onDonationSuccess }) {
       <button
         type="submit"
         disabled={status === "loading-script" || status === "processing"}
-        className="w-full inline-flex items-center justify-center rounded-xl bg-emerald-400 hover:bg-emerald-300 disabled:opacity-60 transition-colors text-slate-900 font-semibold py-3"
+        className="w-full inline-flex items-center justify-center rounded-2xl bg-[#22c55e] hover:bg-[#16a34a] disabled:opacity-60 transition-all text-slate-950 font-black py-4 text-base border-2 border-black shadow-solid hover:translate-y-0.5 hover:shadow-solid-sm active:translate-y-1 cursor-pointer"
       >
         {status === "loading-script"
           ? "Loading payment gateway..."
           : status === "processing"
-            ? "Processing..."
-            : "Donate Now"}
+            ? "Processing payment..."
+            : "Donate Now ✦"}
       </button>
 
-      {status === "error" && <p className="text-sm text-red-400">{errorMsg}</p>}
+      {status === "error" && (
+        <p className="text-xs font-bold text-red-700 bg-red-100 border-2 border-black rounded-xl p-3 shadow-solid-sm">
+          ⚠️ {errorMsg}
+        </p>
+      )}
     </form>
   );
 }
 
-function RecentDonations({ fundraiserId, refreshTrigger }) {
+function DonationsSection({ fundraiserId, refreshTrigger }) {
+  const [filter, setFilter] = useState("recent"); // "recent" | "top"
   const [donations, setDonations] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function load() {
+      setLoading(true);
       try {
-        const res = await fetch(`/api/donations/fundraiser/${fundraiserId}`);
+        const res = await fetch(
+          `/api/donations/fundraiser/${fundraiserId}?filter=${filter}`
+        );
         const data = await res.json();
         if (data.success) {
           setDonations(data.donations);
         }
       } catch (err) {
-        // fail silently — this is a secondary section, not critical
+        // fail silently — secondary section
       } finally {
         setLoading(false);
       }
     }
     load();
-  }, [fundraiserId, refreshTrigger]);
-
-  if (loading) {
-    return <p className="text-sm text-slate-500">Loading donations...</p>;
-  }
-
-  if (donations.length === 0) {
-    return (
-      <p className="text-sm text-slate-500">
-        No donations yet. Be the first to support this cause!
-      </p>
-    );
-  }
+  }, [fundraiserId, filter, refreshTrigger]);
 
   return (
-    <div className="space-y-3">
-      {donations.map((d) => (
-        <div
-          key={d._id}
-          className="flex items-start justify-between rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3"
-        >
-          <div className="flex items-center gap-3 min-w-0">
-            {d.donor?.image ? (
-              <img
-                src={d.donor.image}
-                alt={d.donor.name}
-                className="w-9 h-9 rounded-full object-cover flex-shrink-0"
-              />
-            ) : (
-              <span className="w-9 h-9 rounded-full bg-white/10 flex items-center justify-center text-slate-400 text-xs font-semibold flex-shrink-0">
-                {d.anonymous ? "A" : "?"}
-              </span>
-            )}
-            <div className="min-w-0">
-              <p className="text-sm text-white font-medium truncate">
-                {d.anonymous ? "Anonymous" : d.donor?.name || "A supporter"}
-              </p>
-              {d.message && (
-                <p className="text-xs text-slate-400 mt-0.5 line-clamp-2">
-                  &ldquo;{d.message}&rdquo;
-                </p>
-              )}
-              <p className="text-xs text-slate-500 mt-0.5">
-                {new Date(d.createdAt).toLocaleDateString("en-IN", {
-                  day: "numeric",
-                  month: "short",
-                  year: "numeric",
-                })}
-              </p>
-            </div>
-          </div>
-          <span className="text-emerald-400 font-semibold text-sm flex-shrink-0 ml-3">
-            ₹{d.amount.toLocaleString()}
-          </span>
+    <div className="space-y-4">
+      <div className="flex items-center justify-between border-b border-slate-200 pb-3">
+        <span className="text-sm text-slate-700 font-bold">
+          {donations.length} {donations.length === 1 ? "Donation" : "Donations"}
+        </span>
+        <div className="flex items-center gap-1 rounded-xl bg-slate-100 p-1 border-2 border-black">
+          <button
+            type="button"
+            onClick={() => setFilter("recent")}
+            className={`rounded-lg px-3 py-1 text-xs font-black transition-all ${
+              filter === "recent"
+                ? "bg-[#22c55e] text-slate-950 shadow-solid-sm"
+                : "text-slate-600 hover:text-slate-950"
+            }`}
+          >
+            Recent
+          </button>
+          <button
+            type="button"
+            onClick={() => setFilter("top")}
+            className={`rounded-lg px-3 py-1 text-xs font-black transition-all ${
+              filter === "top"
+                ? "bg-[#22c55e] text-slate-950 shadow-solid-sm"
+                : "text-slate-600 hover:text-slate-950"
+            }`}
+          >
+            👑 Top Donors
+          </button>
         </div>
-      ))}
+      </div>
+
+      {loading ? (
+        <div className="py-8 text-center text-sm text-slate-500 font-medium">
+          Loading donations...
+        </div>
+      ) : donations.length === 0 ? (
+        <div className="rounded-2xl border-2 border-black bg-slate-50 p-8 text-center">
+          <p className="text-sm text-slate-700 font-bold">No donations yet</p>
+          <p className="text-xs text-slate-500 mt-1">
+            Be the first to support this campaign!
+          </p>
+        </div>
+      ) : (
+        <div className="space-y-3">
+          {donations.map((d, index) => {
+            const isTopRanked = filter === "top";
+            const rankBadge =
+              isTopRanked && index === 0
+                ? "🥇"
+                : isTopRanked && index === 1
+                ? "🥈"
+                : isTopRanked && index === 2
+                ? "🥉"
+                : isTopRanked
+                ? `#${index + 1}`
+                : null;
+
+            return (
+              <div
+                key={d._id}
+                className="flex items-start justify-between rounded-2xl border-2 border-black bg-slate-50 px-4 py-3 shadow-solid-sm hover:translate-x-0.5 transition-transform"
+              >
+                <div className="flex items-center gap-3 min-w-0">
+                  {rankBadge && (
+                    <span className="text-sm font-bold text-slate-950 w-6 text-center flex-shrink-0">
+                      {rankBadge}
+                    </span>
+                  )}
+                  {d.donor?.image ? (
+                    <img
+                      src={d.donor.image}
+                      alt={d.donor.name}
+                      className="w-10 h-10 rounded-full object-cover flex-shrink-0 border-2 border-black shadow-solid-sm"
+                    />
+                  ) : (
+                    <span className="w-10 h-10 rounded-full bg-[#22c55e] border-2 border-black flex items-center justify-center text-slate-950 text-xs font-black flex-shrink-0 shadow-solid-sm">
+                      {d.anonymous
+                        ? "A"
+                        : (d.donor?.name?.[0] || "?").toUpperCase()}
+                    </span>
+                  )}
+                  <div className="min-w-0">
+                    <p className="text-sm text-slate-950 font-bold truncate">
+                      {d.anonymous
+                        ? "Anonymous"
+                        : d.donor?.name || "A supporter"}
+                    </p>
+                    {d.message && (
+                      <p className="text-xs text-slate-600 mt-0.5 line-clamp-2 italic">
+                        &ldquo;{d.message}&rdquo;
+                      </p>
+                    )}
+                    <p className="text-xs text-slate-500 mt-0.5 font-medium">
+                      {new Date(d.createdAt).toLocaleDateString("en-IN", {
+                        day: "numeric",
+                        month: "short",
+                        year: "numeric",
+                      })}
+                    </p>
+                  </div>
+                </div>
+                <span className="text-slate-950 font-black text-sm flex-shrink-0 ml-3">
+                  ₹{d.amount.toLocaleString()}
+                </span>
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function UpdatesSection({ fundraiserId, updates, isOwner, onUpdateAdded }) {
+  const [showForm, setShowForm] = useState(false);
+  const [title, setTitle] = useState("");
+  const [message, setMessage] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const [errorMsg, setErrorMsg] = useState("");
+
+  async function handleAddUpdate(e) {
+    e.preventDefault();
+    if (!title.trim() || !message.trim()) return;
+
+    setSubmitting(true);
+    setErrorMsg("");
+    try {
+      const res = await fetch(`/api/fundraisers/${fundraiserId}/updates`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ title, message }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        setErrorMsg(data.message || "Failed to publish update.");
+        return;
+      }
+
+      setTitle("");
+      setMessage("");
+      setShowForm(false);
+      if (onUpdateAdded) onUpdateAdded(data.updates);
+    } catch (err) {
+      setErrorMsg("Network error while publishing update.");
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  const sortedUpdates = [...(updates || [])].sort(
+    (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+  );
+
+  return (
+    <div className="space-y-6">
+      {isOwner && (
+        <div className="rounded-2xl border-2 border-black bg-emerald-50 p-5 shadow-solid-sm">
+          {!showForm ? (
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="text-slate-950 font-black text-sm">
+                  Post an Organizer Update
+                </h3>
+                <p className="text-xs text-slate-700 mt-0.5 font-medium">
+                  Keep your donors and supporters informed on campaign progress.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowForm(true)}
+                className="rounded-xl border-2 border-black bg-[#22c55e] hover:bg-[#16a34a] transition-colors text-slate-950 font-black px-4 py-2 text-xs shadow-solid-sm cursor-pointer"
+              >
+                + Post Update
+              </button>
+            </div>
+          ) : (
+            <form onSubmit={handleAddUpdate} className="space-y-3">
+              <div className="flex items-center justify-between">
+                <h3 className="text-slate-950 font-black text-sm">
+                  Post an Organizer Update
+                </h3>
+                <button
+                  type="button"
+                  onClick={() => setShowForm(false)}
+                  className="text-xs text-slate-600 hover:text-slate-950 font-bold cursor-pointer"
+                >
+                  Cancel
+                </button>
+              </div>
+
+              <div>
+                <input
+                  type="text"
+                  placeholder="Update title (e.g. Surgery completed, thank you!)"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  className="w-full rounded-xl border-2 border-black bg-white px-3.5 py-2 text-slate-950 placeholder:text-slate-400 text-sm focus:outline-none font-medium"
+                  required
+                />
+              </div>
+
+              <div>
+                <textarea
+                  rows={4}
+                  placeholder="Share details, hospital progress, receipts, or thank you notes..."
+                  value={message}
+                  onChange={(e) => setMessage(e.target.value)}
+                  className="w-full rounded-xl border-2 border-black bg-white px-3.5 py-2 text-slate-950 placeholder:text-slate-400 text-sm focus:outline-none resize-none font-medium"
+                  required
+                />
+              </div>
+
+              {errorMsg && <p className="text-xs text-red-600 font-bold">{errorMsg}</p>}
+
+              <div className="flex justify-end gap-2">
+                <button
+                  type="button"
+                  onClick={() => setShowForm(false)}
+                  className="rounded-xl border-2 border-black bg-white px-4 py-2 text-xs text-slate-700 hover:bg-slate-100 font-bold cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={submitting}
+                  className="rounded-xl border-2 border-black bg-[#22c55e] hover:bg-[#16a34a] disabled:opacity-60 transition-colors text-slate-950 font-black px-5 py-2 text-xs shadow-solid-sm cursor-pointer"
+                >
+                  {submitting ? "Publishing..." : "Publish Update"}
+                </button>
+              </div>
+            </form>
+          )}
+        </div>
+      )}
+
+      {sortedUpdates.length === 0 ? (
+        <div className="rounded-2xl border-2 border-black bg-slate-50 p-8 text-center">
+          <p className="text-sm text-slate-700 font-bold">No updates posted yet</p>
+          <p className="text-xs text-slate-500 mt-1">
+            The organizer will share progress and milestones here.
+          </p>
+        </div>
+      ) : (
+        <div className="relative pl-6 space-y-6 before:absolute before:left-2.5 before:top-3 before:bottom-3 before:w-0.5 before:bg-slate-300">
+          {sortedUpdates.map((u, i) => (
+            <div key={u._id || i} className="relative">
+              <span className="absolute -left-6 top-1.5 w-3 h-3 rounded-full bg-emerald-500 ring-4 ring-white" />
+              <div className="rounded-2xl border-2 border-black bg-slate-50 p-5 shadow-solid-sm">
+                <div className="flex items-center justify-between gap-2">
+                  <span className="rounded-full bg-white border-2 border-black px-2.5 py-0.5 text-[11px] font-black text-slate-950 shadow-solid-sm">
+                    Update #{sortedUpdates.length - i}
+                  </span>
+                  <span className="text-xs text-slate-600 font-medium">
+                    {new Date(u.createdAt).toLocaleDateString("en-IN", {
+                      day: "numeric",
+                      month: "short",
+                      year: "numeric",
+                    })}
+                  </span>
+                </div>
+                <h4 className="text-base font-black text-slate-950 mt-2.5">
+                  {u.title}
+                </h4>
+                <p className="mt-2 text-sm text-slate-700 leading-relaxed whitespace-pre-line font-medium">
+                  {u.message}
+                </p>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
@@ -289,10 +562,18 @@ function RecentDonations({ fundraiserId, refreshTrigger }) {
 // photo-gallery viewer. Works for both images and non-image files (the
 // latter get a file-icon placeholder + a download prompt instead of an
 // <img>).
+function isImageFile(doc) {
+  if (!doc?.fileData) return false;
+  if (doc.fileData.startsWith("data:image")) return true;
+  if (/\.(jpe?g|png|webp|gif|svg)($|\?)/i.test(doc.fileData)) return true;
+  if (/\.(jpe?g|png|webp|gif|svg)$/i.test(doc.name || "")) return true;
+  return false;
+}
+
 function DocumentLightbox({ documents, index, onClose, onIndexChange }) {
   const total = documents.length;
   const current = documents[index];
-  const isImage = current?.fileData?.startsWith("data:image");
+  const isImage = isImageFile(current);
 
   useEffect(() => {
     function handleKeyDown(e) {
@@ -552,7 +833,7 @@ function ShareModal({ fundraiser, currentAmount, percent, url, onClose }) {
         </div>
 
         <div className="px-5 pt-4">
-          <ProgressBar percent={percent} />
+          <ProgressBar percent={percent} size="lg" />
           <div className="mt-3 flex justify-between text-sm">
             <span className="text-white font-semibold">
               ₹{currentAmount.toLocaleString()}{" "}
@@ -719,6 +1000,7 @@ function ShareModal({ fundraiser, currentAmount, percent, url, onClose }) {
 
 export default function FundraiserDetailPage() {
   const { id } = useParams();
+  const { data: session } = useSession();
 
   const [fundraiser, setFundraiser] = useState(null);
   const [liveAmount, setLiveAmount] = useState(null);
@@ -727,6 +1009,7 @@ export default function FundraiserDetailPage() {
   const [error, setError] = useState("");
   const [lightboxIndex, setLightboxIndex] = useState(null); // null = closed
   const [showShare, setShowShare] = useState(false);
+  const [activeTab, setActiveTab] = useState("story"); // "story" | "updates" | "donations"
 
   useEffect(() => {
     async function load() {
@@ -750,20 +1033,20 @@ export default function FundraiserDetailPage() {
 
   if (loading) {
     return (
-      <main className="min-h-screen bg-[#060b10] flex items-center justify-center">
-        <p className="text-slate-400">Loading fundraiser...</p>
+      <main className="min-h-screen bg-(--app-bg) text-(--app-text) flex items-center justify-center">
+        <p className="text-slate-600 font-bold">Loading fundraiser...</p>
       </main>
     );
   }
 
   if (error || !fundraiser) {
     return (
-      <main className="min-h-screen bg-[#060b10] flex flex-col items-center justify-center gap-4 px-8 text-center">
-        <h1 className="text-2xl font-bold text-white">Fundraiser not found</h1>
-        <p className="text-slate-400">{error}</p>
+      <main className="min-h-screen bg-(--app-bg) text-(--app-text) flex flex-col items-center justify-center gap-4 px-8 text-center">
+        <h1 className="text-2xl font-black text-slate-950">Fundraiser not found</h1>
+        <p className="text-slate-600 font-medium">{error}</p>
         <Link
           href="/donate"
-          className="mt-2 inline-flex items-center gap-2 rounded-full bg-emerald-400 hover:bg-emerald-300 transition-colors text-slate-900 font-semibold px-6 py-3"
+          className="mt-2 inline-flex items-center gap-2 rounded-2xl bg-[#22c55e] hover:bg-[#16a34a] transition-colors text-slate-950 font-black px-6 py-3 border-2 border-black shadow-solid-sm"
         >
           Back to Donate
         </Link>
@@ -780,42 +1063,113 @@ export default function FundraiserDetailPage() {
     owner,
     createdAt,
     documents,
+    updates = [],
+    verificationStatus = "verified",
+    verificationBadge = "standard",
+    verificationNote = "",
   } = fundraiser;
 
   const currentAmount = liveAmount ?? fundraiser.currentAmount;
   const percent = targetAmount > 0 ? (currentAmount / targetAmount) * 100 : 0;
+  const isOwner = Boolean(
+    session?.user?.email && owner?.email && session.user.email === owner.email
+  );
+  const optimizedCover = optimizeImage(coverImage, {
+    width: 1200,
+    quality: "auto",
+    format: "auto",
+  });
 
   return (
-    <main className="min-h-screen bg-[#060b10] pb-20">
-      <div className="relative h-72 sm:h-96 w-full">
-        <img
-          src={coverImage}
-          alt={title}
-          className="w-full h-full object-cover"
-        />
-        <div className="absolute inset-0 bg-linear-to-t from-[#060b10] via-[#060b10]/20 to-transparent" />
-        <span className="absolute top-6 left-8 rounded-full bg-black/60 backdrop-blur px-4 py-1.5 text-xs text-emerald-300 font-medium">
-          {category}
-        </span>
+    <main className="min-h-screen bg-(--app-bg) text-(--app-text) pt-20 sm:pt-24 lg:pt-28 pb-20">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 mb-8">
+        <div className="relative h-72 sm:h-96 w-full rounded-3xl overflow-hidden border-2 border-black shadow-solid-lg bg-slate-900">
+          <img
+            src={optimizedCover || "/images/donation.webp"}
+            alt={title}
+            decoding="async"
+            onError={(e) => {
+              e.currentTarget.src = "/images/donation.webp";
+            }}
+            className="w-full h-full object-cover"
+          />
+          <div className="absolute inset-0 bg-linear-to-t from-black/80 via-transparent to-transparent" />
+          <span className="absolute top-5 left-5 rounded-full bg-black/75 border border-white/20 px-4 py-1.5 text-xs text-[#22c55e] font-black shadow-solid-sm">
+            {category}
+          </span>
+        </div>
       </div>
 
-      <div className="max-w-6xl mx-auto px-8 -mt-16 relative grid grid-cols-1 lg:grid-cols-3 gap-10">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative grid grid-cols-1 lg:grid-cols-3 gap-10">
         <div className="lg:col-span-2">
           <div className="flex items-start justify-between gap-4">
-            <h1 className="font-serif text-3xl sm:text-4xl font-bold text-white">
-              {title}
-            </h1>
+            <div>
+              <h1 className="font-editorial text-3xl sm:text-5xl font-black text-slate-950 tracking-tight">
+                {title}
+              </h1>
+
+              {/* Verification Trust Badge & Banner */}
+              {verificationStatus === "verified" ? (
+                <div className="mt-3 inline-flex items-center gap-1.5 rounded-full border-2 border-black bg-[#22c55e] px-4 py-1 text-xs font-black text-slate-950 shadow-solid-sm">
+                  <span>✓</span>
+                  {verificationBadge === "hospital_verified"
+                    ? "Hospital Direct Verified"
+                    : verificationBadge === "field_verified"
+                    ? "Field Inspected & Verified"
+                    : "Monetra Verified Campaign"}
+                </div>
+              ) : verificationStatus === "pending" ? (
+                <div className="mt-3 rounded-2xl border-2 border-black bg-amber-100 p-4 flex items-start gap-3 shadow-solid-sm text-slate-950">
+                  <span className="text-xl">⏳</span>
+                  <div>
+                    <h4 className="text-xs font-black">
+                      Under Review by Monetra Trust Desk
+                    </h4>
+                    <p className="text-[11px] text-slate-700 mt-0.5 leading-relaxed font-medium">
+                      Our verification desk is cross-checking hospital and identity documents. Donations unlock once approved.
+                    </p>
+                  </div>
+                </div>
+              ) : verificationStatus === "action_required" ? (
+                <div className="mt-3 rounded-2xl border-2 border-black bg-orange-100 p-4 flex items-start gap-3 shadow-solid-sm text-slate-950">
+                  <span className="text-xl">⚠️</span>
+                  <div>
+                    <h4 className="text-xs font-black">
+                      Action Required by Organizer
+                    </h4>
+                    <p className="text-[11px] text-slate-700 mt-0.5 leading-relaxed font-medium">
+                      {verificationNote ||
+                        "Please upload updated medical documents to complete verification."}
+                    </p>
+                  </div>
+                </div>
+              ) : (
+                <div className="mt-3 rounded-2xl border-2 border-black bg-rose-100 p-4 flex items-start gap-3 shadow-solid-sm text-slate-950">
+                  <span className="text-xl">❌</span>
+                  <div>
+                    <h4 className="text-xs font-black">
+                      Verification Declined
+                    </h4>
+                    <p className="text-[11px] text-slate-700 mt-0.5 leading-relaxed font-medium">
+                      {verificationNote ||
+                        "This campaign did not meet Monetra's trust & safety guidelines."}
+                    </p>
+                  </div>
+                </div>
+              )}
+            </div>
+
             <button
               type="button"
               onClick={() => setShowShare(true)}
-              className="flex-shrink-0 mt-1 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/[0.03] hover:border-emerald-500/50 hover:bg-white/[0.06] transition-colors text-slate-200 text-sm font-medium px-4 py-2"
+              className="flex-shrink-0 mt-1 inline-flex items-center gap-2 rounded-full border-2 border-black bg-white hover:bg-slate-100 transition-all text-slate-950 text-xs font-black px-4 py-2 shadow-solid-sm cursor-pointer"
             >
               <svg
                 className="w-4 h-4"
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
-                strokeWidth="2"
+                strokeWidth="2.5"
               >
                 <circle cx="18" cy="5" r="2.5" />
                 <circle cx="6" cy="12" r="2.5" />
@@ -827,132 +1181,199 @@ export default function FundraiserDetailPage() {
           </div>
 
           {owner?.name && (
-            <p className="mt-3 text-sm text-slate-400">
-              Organized by{" "}
-              <span className="text-white font-medium">{owner.name}</span>
-            </p>
-          )}
-
-          <p className="mt-2 text-xs text-slate-500">
-            Started {new Date(createdAt).toLocaleDateString()}
-          </p>
-
-          <p className="mt-6 text-slate-300 leading-relaxed whitespace-pre-line">
-            {description}
-          </p>
-
-          {documents && documents.length > 0 && (
-            <div className="mt-10">
-              <h2 className="text-white font-semibold text-lg flex items-center gap-2">
-                <svg
-                  className="w-5 h-5 text-emerald-400"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                >
-                  <path d="M12 2 4 5v6c0 5 3.4 9 8 11 4.6-2 8-6 8-11V5l-8-3Z" />
-                  <path d="m9 12 2 2 4-4" />
-                </svg>
-                Verification Documents
-              </h2>
-              <p className="mt-1 text-xs text-slate-500">
-                Uploaded by the organizer to support the authenticity of this
-                campaign. Click a document to view it full-screen.
+            <div className="mt-4 flex items-center gap-2.5">
+              {owner?.image ? (
+                <img
+                  src={owner.image}
+                  alt={owner.name}
+                  className="w-8 h-8 rounded-full object-cover border-2 border-black shadow-solid-sm"
+                />
+              ) : (
+                <span className="w-8 h-8 rounded-full bg-[#22c55e] text-slate-950 text-xs font-black flex items-center justify-center border-2 border-black shadow-solid-sm">
+                  {owner.name.charAt(0).toUpperCase()}
+                </span>
+              )}
+              <p className="text-xs text-slate-700 font-medium">
+                Organized by{" "}
+                <span className="text-slate-950 font-bold">{owner.name}</span>
               </p>
-
-              <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {documents.map((doc, i) => {
-                  const isImage = doc.fileData?.startsWith("data:image");
-                  return (
-                    <button
-                      key={doc._id}
-                      type="button"
-                      onClick={() => setLightboxIndex(i)}
-                      className="flex items-center gap-3 rounded-xl border border-white/10 bg-white/[0.03] p-4 hover:border-emerald-500/40 transition-colors text-left"
-                    >
-                      {isImage ? (
-                        <img
-                          src={doc.fileData}
-                          alt={doc.name}
-                          className="w-14 h-14 rounded-lg object-cover flex-shrink-0"
-                        />
-                      ) : (
-                        <span className="w-14 h-14 rounded-lg bg-white/5 flex items-center justify-center flex-shrink-0">
-                          <svg
-                            className="w-6 h-6 text-slate-400"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            strokeWidth="1.5"
-                          >
-                            <path d="M14 3v4a1 1 0 0 0 1 1h4M6 21h12a1 1 0 0 0 1-1V7l-5-5H6a1 1 0 0 0-1 1v17a1 1 0 0 0 1 1Z" />
-                          </svg>
-                        </span>
-                      )}
-                      <div className="min-w-0">
-                        <p className="text-sm text-white font-medium truncate">
-                          {doc.name}
-                        </p>
-                        <p className="text-xs text-emerald-400 mt-0.5">
-                          {doc.type}
-                        </p>
-                      </div>
-                    </button>
-                  );
-                })}
-              </div>
             </div>
           )}
-          <div className="mt-10">
-            <h2 className="text-white font-semibold text-lg flex items-center gap-2">
-              <svg
-                className="w-5 h-5 text-emerald-400"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-              >
-                <path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8Z" />
-              </svg>
-              Recent Donations
-            </h2>
-            <p className="mt-1 text-xs text-slate-500 mb-4">
-              People who&apos;ve supported this campaign.
-            </p>
 
-            <RecentDonations
-              fundraiserId={id}
-              refreshTrigger={donationsRefreshKey}
-            />
+          <p className="mt-2 text-xs text-slate-600 font-medium">
+            Started {new Date(createdAt).toLocaleDateString("en-IN", {
+              day: "numeric",
+              month: "short",
+              year: "numeric",
+            })}
+          </p>
+
+          {/* Neo-brutalist Navigation Tabs */}
+          <div className="flex items-center gap-3 mt-8 mb-6 overflow-x-auto pb-1">
+            <button
+              type="button"
+              onClick={() => setActiveTab("story")}
+              className={`px-5 py-2.5 rounded-2xl text-xs font-black border-2 border-black transition-all cursor-pointer ${
+                activeTab === "story"
+                  ? "bg-[#22c55e] text-slate-950 shadow-solid-sm"
+                  : "bg-white text-slate-800 shadow-[0_2px_0_#000] hover:bg-slate-100"
+              }`}
+            >
+              Story
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveTab("updates")}
+              className={`px-5 py-2.5 rounded-2xl text-xs font-black border-2 border-black transition-all flex items-center gap-1.5 cursor-pointer ${
+                activeTab === "updates"
+                  ? "bg-[#22c55e] text-slate-950 shadow-solid-sm"
+                  : "bg-white text-slate-800 shadow-[0_2px_0_#000] hover:bg-slate-100"
+              }`}
+            >
+              Updates
+              <span className="rounded-full bg-slate-950 text-white px-2 py-0.5 text-[10px] font-black">
+                {updates.length}
+              </span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveTab("donations")}
+              className={`px-5 py-2.5 rounded-2xl text-xs font-black border-2 border-black transition-all cursor-pointer ${
+                activeTab === "donations"
+                  ? "bg-[#22c55e] text-slate-950 shadow-solid-sm"
+                  : "bg-white text-slate-800 shadow-[0_2px_0_#000] hover:bg-slate-100"
+              }`}
+            >
+              Donations
+            </button>
           </div>
+
+          {/* Tab 1: Story in White Neo-Brutalist Box */}
+          {activeTab === "story" && (
+            <div className="rounded-3xl border-2 border-black bg-white text-slate-900 p-6 sm:p-8 shadow-solid-lg space-y-8">
+              <p className="text-slate-800 leading-relaxed whitespace-pre-line text-sm sm:text-base font-medium">
+                {description}
+              </p>
+
+              {documents && documents.length > 0 && (
+                <div className="pt-4 border-t border-slate-200">
+                  <h2 className="text-slate-950 font-black text-lg flex items-center gap-2">
+                    <svg
+                      className="w-5 h-5 text-emerald-600"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2.5"
+                    >
+                      <path d="M12 2 4 5v6c0 5 3.4 9 8 11 4.6-2 8-6 8-11V5l-8-3Z" />
+                      <path d="m9 12 2 2 4-4" />
+                    </svg>
+                    Verification Documents
+                  </h2>
+                  <p className="mt-1 text-xs text-slate-600 font-medium">
+                    Uploaded by the organizer to verify campaign authenticity.
+                    Click to view full-screen.
+                  </p>
+
+                  <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {documents.map((doc, i) => {
+                      const isImage = isImageFile(doc);
+                      return (
+                        <button
+                          key={doc._id}
+                          type="button"
+                          onClick={() => setLightboxIndex(i)}
+                          className="flex items-center gap-3 rounded-2xl border-2 border-black bg-slate-50 p-4 hover:bg-slate-100 transition-colors text-left shadow-solid-sm cursor-pointer"
+                        >
+                          {isImage ? (
+                            <img
+                              src={doc.fileData}
+                              alt={doc.name}
+                              className="w-14 h-14 rounded-xl object-cover flex-shrink-0 border-2 border-black shadow-solid-sm"
+                            />
+                          ) : (
+                            <span className="w-14 h-14 rounded-xl bg-slate-200 border-2 border-black flex items-center justify-center flex-shrink-0 shadow-solid-sm">
+                              <svg
+                                className="w-6 h-6 text-slate-700"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth="2"
+                              >
+                                <path d="M14 3v4a1 1 0 0 0 1 1h4M6 21h12a1 1 0 0 0 1-1V7l-5-5H6a1 1 0 0 0-1 1v17a1 1 0 0 0 1 1Z" />
+                              </svg>
+                            </span>
+                          )}
+                          <div className="min-w-0">
+                            <p className="text-sm text-slate-950 font-bold truncate">
+                              {doc.name}
+                            </p>
+                            <p className="text-xs text-emerald-700 font-black mt-0.5">
+                              {doc.type}
+                            </p>
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Tab 2: Updates */}
+          {activeTab === "updates" && (
+            <div className="rounded-3xl border-2 border-black bg-white text-slate-900 p-6 sm:p-8 shadow-solid-lg">
+              <UpdatesSection
+                fundraiserId={id}
+                updates={updates}
+                isOwner={isOwner}
+                onUpdateAdded={(newUpdates) => {
+                  setFundraiser((prev) => ({
+                    ...prev,
+                    updates: newUpdates,
+                  }));
+                }}
+              />
+            </div>
+          )}
+
+          {/* Tab 3: Donations */}
+          {activeTab === "donations" && (
+            <div className="rounded-3xl border-2 border-black bg-white text-slate-900 p-6 sm:p-8 shadow-solid-lg">
+              <DonationsSection
+                fundraiserId={id}
+                refreshTrigger={donationsRefreshKey}
+              />
+            </div>
+          )}
         </div>
 
         <div className="space-y-6">
-          <div className="rounded-2xl border border-white/10 bg-white/3 p-6">
-            <ProgressBar percent={percent} />
-            <div className="mt-3 flex justify-between text-sm">
-              <span className="text-white font-semibold text-lg">
+          <div className="rounded-3xl border-2 border-black bg-white text-slate-900 p-6 sm:p-7 shadow-solid-lg">
+            <ProgressBar percent={percent} size="lg" />
+            <div className="mt-4 flex justify-between items-baseline text-sm">
+              <span className="font-editorial text-2xl font-black text-slate-950">
                 ₹{currentAmount.toLocaleString()}
               </span>
-              <span className="text-slate-400">
+              <span className="text-slate-500 font-bold text-xs">
                 of ₹{targetAmount.toLocaleString()}
               </span>
             </div>
-            <p className="mt-1 text-xs text-slate-500">
+            <p className="mt-1 text-xs text-emerald-800 font-black">
               {Math.round(percent)}% funded
             </p>
             <button
               type="button"
               onClick={() => setShowShare(true)}
-              className="mt-4 w-full inline-flex items-center justify-center gap-2 rounded-xl border border-white/15 hover:border-emerald-500/50 hover:bg-white/[0.04] transition-colors text-slate-200 font-medium py-2.5 text-sm"
+              className="mt-5 w-full inline-flex items-center justify-center gap-2 rounded-xl border-2 border-black bg-slate-50 hover:bg-slate-100 transition-all text-slate-950 font-black py-3 text-xs shadow-solid-sm cursor-pointer"
             >
               <svg
                 className="w-4 h-4"
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
-                strokeWidth="2"
+                strokeWidth="2.5"
               >
                 <circle cx="18" cy="5" r="2.5" />
                 <circle cx="6" cy="12" r="2.5" />
@@ -966,6 +1387,7 @@ export default function FundraiserDetailPage() {
           <div id="donate-box">
             <DonateBox
               fundraiserId={id}
+              verificationStatus={verificationStatus}
               onDonationSuccess={(newAmount) => {
                 setLiveAmount(newAmount);
                 setDonationsRefreshKey((k) => k + 1);

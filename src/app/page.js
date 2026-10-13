@@ -1,376 +1,367 @@
 "use client";
 
-import { useRef, useState, useEffect } from "react";
-import Image from "next/image";
+import { useState, useEffect } from "react";
 import Link from "next/link";
+import FundraiserCard from "../../components/FundraiserCard";
 
-const heroImages = [
-  { src: "/images/donation6.jpg", rotate: "-rotate-12", pos: "left-0 top-16" },
-  { src: "/images/donation7.jpg", rotate: "-rotate-6", pos: "left-[18%] top-2" },
-  { src: "/images/donation8.jpg", rotate: "rotate-2", pos: "left-1/2 -translate-x-1/2 -top-4" },
-  { src: "/images/donation9.jpg", rotate: "rotate-6", pos: "right-[18%] top-2" },
-  { src: "/images/donation10.avif", rotate: "rotate-12", pos: "right-0 top-16" },
-];
-
-function FeatureRow({ icon, text }) {
-  return (
-    <div className="flex items-center gap-3">
-      <span className="w-7 h-7 rounded-full bg-white/5 flex items-center justify-center shrink-0">
-        {icon}
-      </span>
-      <span className="text-sm text-slate-200">{text}</span>
-    </div>
-  );
-}
-
-/* --- Inline icons (no extra dependency needed) --- */
-function HeartIcon(props) {
-  return (
-    <svg {...props} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-      <path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8Z" />
-    </svg>
-  );
-}
-function ShieldIcon(props) {
-  return (
-    <svg {...props} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-      <path d="M12 2 4 5v6c0 5 3.4 9 8 11 4.6-2 8-6 8-11V5l-8-3Z" />
-    </svg>
-  );
-}
-function LockIcon(props) {
-  return (
-    <svg {...props} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-      <rect x="4" y="11" width="16" height="9" rx="2" />
-      <path d="M8 11V7a4 4 0 0 1 8 0v4" />
-    </svg>
-  );
-}
-function BoltIcon(props) {
-  return (
-    <svg {...props} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-      <path d="M13 2 3 14h7l-1 8 11-13h-7l0-7Z" />
-    </svg>
-  );
-}
-function ArrowIcon(props) {
-  return (
-    <svg {...props} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-      <path d="M5 12h14M13 5l7 7-7 7" />
-    </svg>
-  );
-}
-function UsersIcon(props) {
-  return (
-    <svg {...props} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-      <circle cx="9" cy="8" r="3" />
-      <path d="M2 20c0-3.3 3.1-6 7-6s7 2.7 7 6" />
-      <circle cx="17" cy="9" r="2.5" />
-      <path d="M15.5 14c2.9.3 5.5 2.6 5.5 6" />
-    </svg>
-  );
-}
-function ShareIcon(props) {
-  return (
-    <svg {...props} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-      <circle cx="6" cy="12" r="2.5" />
-      <circle cx="18" cy="6" r="2.5" />
-      <circle cx="18" cy="18" r="2.5" />
-      <path d="M8.2 10.8 15.8 7M8.2 13.2l7.6 3.8" />
-    </svg>
-  );
-}
-function TargetIcon(props) {
-  return (
-    <svg {...props} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-      <circle cx="12" cy="12" r="9" />
-      <circle cx="12" cy="12" r="5" />
-      <circle cx="12" cy="12" r="1" />
-    </svg>
-  );
-}
-function TrophyIcon(props) {
-  return (
-    <svg {...props} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-      <path d="M8 4h8v5a4 4 0 0 1-8 0V4Z" />
-      <path d="M8 5H5a3 3 0 0 0 3 5M16 5h3a3 3 0 0 1-3 5" />
-      <path d="M12 13v4M9 21h6M10 17h4v4h-4z" />
-    </svg>
-  );
-}
-function SparkleToolsIcon(props) {
-  return (
-    <svg {...props} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-      <path d="M12 3v3M12 18v3M3 12h3M18 12h3M6 6l2 2M16 16l2 2M18 6l-2 2M8 16l-2 2" />
-      <circle cx="12" cy="12" r="3.2" />
-    </svg>
-  );
-}
-function ChecklistIcon(props) {
-  return (
-    <svg {...props} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-      <path d="M4 4h13l3 3v13H4z" />
-      <path d="M8 11l2 2 4-4" />
-      <path d="M8 16h6" />
-    </svg>
-  );
-}
-function HeartCheckIcon(props) {
-  return (
-    <svg {...props} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-      <path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8Z" />
-      <path d="m9.5 12.5 1.6 1.6 3.2-3.2" />
-    </svg>
-  );
-}
-
-const whyStartItems = [
-  {
-    icon: TrophyIcon,
-    title: "Trusted by thousands",
-    description:
-      "Join a growing community of organizers who've raised funds for the causes they care about most.",
-  },
-  {
-    icon: SparkleToolsIcon,
-    title: "Smart tools, zero hassle",
-    description:
-      "Guided prompts and ready-made templates help you write a compelling story in minutes, not hours.",
-  },
-  {
-    icon: ChecklistIcon,
-    title: "Everything you need to succeed",
-    description:
-      "Progress tracking, verified documents, and a built-in share kit keep your fundraiser moving forward.",
-  },
-  {
-    icon: HeartCheckIcon,
-    title: "Support at every step",
-    description:
-      "From setup to your first donation and beyond, our team and help center are here whenever you need them.",
-  },
-];
-
-function WhyStartSection() {
-  const scrollerRef = useRef(null);
-  const [canScrollLeft, setCanScrollLeft] = useState(false);
-  const [canScrollRight, setCanScrollRight] = useState(true);
-
-  function updateScrollButtons() {
-    const el = scrollerRef.current;
-    if (!el) return;
-    setCanScrollLeft(el.scrollLeft > 8);
-    setCanScrollRight(el.scrollLeft + el.clientWidth < el.scrollWidth - 8);
-  }
+export default function Home() {
+  const [featuredFundraisers, setFeaturedFundraisers] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [showHelpModal, setShowHelpModal] = useState(false);
 
   useEffect(() => {
-    updateScrollButtons();
-    const el = scrollerRef.current;
-    if (!el) return;
-    el.addEventListener("scroll", updateScrollButtons, { passive: true });
-    window.addEventListener("resize", updateScrollButtons);
-    return () => {
-      el.removeEventListener("scroll", updateScrollButtons);
-      window.removeEventListener("resize", updateScrollButtons);
-    };
+    async function loadFeatured() {
+      try {
+        const res = await fetch("/api/fundraisers?limit=6&sort=mostRaised");
+        const data = await res.json();
+        if (data.success && data.fundraisers) {
+          setFeaturedFundraisers(data.fundraisers);
+        }
+      } catch (err) {
+        console.error("Failed to load featured fundraisers:", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadFeatured();
   }, []);
 
-  function scrollByCard(direction) {
-    const el = scrollerRef.current;
-    if (!el) return;
-    const card = el.querySelector("[data-why-card]");
-    const cardWidth = card ? card.offsetWidth + 24 : 320;
-    el.scrollBy({ left: direction * cardWidth, behavior: "smooth" });
-  }
-
   return (
-    <section className="relative z-10 mx-auto max-w-6xl px-6 pb-28">
-      <div className="text-center">
-        <h2 className="text-3xl sm:text-4xl font-extrabold text-white">
-          Why start a <span className="text-emerald-400">Monetra</span>{" "}
-          fundraiser?
-        </h2>
-        <p className="mt-4 text-slate-300 max-w-xl mx-auto">
-          Join a community of organizers who've chosen a simple, transparent
-          way to raise funds for the people and causes they care about.
-        </p>
+    <main className="min-h-screen bg-(--app-bg) text-(--app-text) flex flex-col">
+      {/* =========================================================================
+          HERO CANVAS (EXACT SPATIAL COMPOSITION FROM USER'S REFERENCE SCREENSHOT)
+         ========================================================================= */}
+      <section className="relative px-4 sm:px-6 lg:px-8 pt-6 pb-20 sm:pb-32 overflow-hidden">
+        {/* The Exact Brewser-Blue Stage Container */}
+        <div className="relative max-w-7xl mx-auto rounded-[2.5rem] sm:rounded-[3rem] bg-[#3b82f6] border-2 border-black shadow-solid-lg min-h-[580px] lg:min-h-[720px] flex flex-col items-center justify-center px-6 py-16 sm:py-24 overflow-hidden">
 
-        <Link href="/fundraise">
-          <button className="mt-8 inline-flex items-center rounded-full border border-white/20 hover:border-emerald-400/60 hover:bg-white/[0.04] transition-colors text-white font-semibold px-6 py-3 text-sm">
-            Start a Fundraiser
-          </button>
-        </Link>
-      </div>
+          {/* ---------------- FLANKING LEFT CARDS ---------------- */}
+          {/* Card 1: Top-Left Floating Photo */}
+          <div className="hidden md:block absolute left-4 lg:left-10 top-8 lg:top-12 w-44 lg:w-52 h-44 lg:h-52 rounded-3xl border-2 border-black bg-white p-1.5 shadow-solid -rotate-6 hover:rotate-0 hover:scale-105 transition-all duration-300 z-10 group overflow-hidden">
+            <img
+              src="https://images.unsplash.com/photo-1584515979956-d9f6e5d09982?auto=format&fit=crop&w=600&q=80"
+              alt="Healthcare volunteer support"
+              onError={(e) => {
+                e.currentTarget.src = "/images/healthcare.jpg";
+              }}
+              className="w-full h-full object-cover rounded-[1.25rem] group-hover:scale-105 transition-transform"
+            />
+          </div>
 
-      <div className="relative mt-14">
-        <div
-          ref={scrollerRef}
-          className="flex gap-6 overflow-x-auto scroll-smooth snap-x snap-mandatory pb-2 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
-        >
-          {whyStartItems.map((item, i) => {
-            const Icon = item.icon;
-            return (
-              <div
-                key={i}
-                data-why-card
-                className="snap-start shrink-0 w-[260px] sm:w-[280px] rounded-3xl border border-white/10 bg-white/[0.03] p-7 flex flex-col"
+          {/* Card 2: Mid-Left Floating Photo */}
+          <div className="hidden md:block absolute left-2 lg:left-6 top-64 lg:top-72 w-40 lg:w-48 h-40 lg:h-48 rounded-3xl border-2 border-black bg-white p-1.5 shadow-solid rotate-3 hover:rotate-0 hover:scale-105 transition-all duration-300 z-10 group overflow-hidden">
+            <img
+              src="https://images.unsplash.com/photo-1576765608535-5f04d1e3f289?auto=format&fit=crop&w=600&q=80"
+              alt="Patient recovery and care"
+              onError={(e) => {
+                e.currentTarget.src = "/images/donation.webp";
+              }}
+              className="w-full h-full object-cover rounded-[1.25rem] group-hover:scale-105 transition-transform"
+            />
+          </div>
+
+          {/* Card 3: Bottom-Left Floating Photo + Retro Sticker */}
+          <div className="hidden md:block absolute left-8 lg:left-20 bottom-8 lg:bottom-12 w-48 lg:w-56 h-36 lg:h-44 rounded-3xl border-2 border-black bg-white p-1.5 shadow-solid -rotate-2 hover:rotate-0 hover:scale-105 transition-all duration-300 z-10 group">
+            {/* Retro Sticker Badge on bottom-left edge (matching image 1) */}
+            <div className="absolute -left-3 -top-3 w-12 h-12 rounded-full bg-[#ff70a6] border-2 border-black shadow-solid-sm flex items-center justify-center text-white font-black text-xl z-20 animate-pulse">
+              ♥
+            </div>
+            <img
+              src="https://images.unsplash.com/photo-1593113598332-cd288d649433?auto=format&fit=crop&w=600&q=80"
+              alt="Direct aid package"
+              onError={(e) => {
+                e.currentTarget.src = "/images/fundraise1.jpg";
+              }}
+              className="w-full h-full object-cover rounded-[1.25rem] group-hover:scale-105 transition-transform"
+            />
+          </div>
+
+          {/* ---------------- CENTER STAGE TYPOGRAPHY & CTA ---------------- */}
+          <div className="relative z-20 text-center max-w-xl mx-auto flex flex-col items-center">
+            {/* Massive Chunky Serif Display Headline */}
+            <h1 className="font-editorial text-5xl sm:text-7xl lg:text-[5.5rem] font-black text-[#e2ff3d] leading-[0.92] tracking-tight drop-shadow-[0_2px_0_rgba(0,0,0,0.4)]">
+              The home<br />
+              of verified<br />
+              giving.
+            </h1>
+
+            {/* Subtitle Underneath */}
+            <p className="mt-6 text-sm sm:text-base text-white font-medium max-w-md mx-auto leading-relaxed">
+              Your direct access to 100+ of the best verified community causes.<br className="hidden sm:inline" />
+              Who will you support first?
+            </p>
+
+            {/* Solid Neo-Brutalist CTA Button */}
+            <div className="mt-8">
+              <Link
+                href="/fundraise/create"
+                className="inline-flex items-center justify-center rounded-xl bg-[#e2ff3d] hover:bg-[#d4ff00] text-slate-950 font-black text-sm px-8 py-3.5 border-2 border-black shadow-solid hover:translate-y-0.5 hover:shadow-solid-sm active:translate-y-1 transition-all"
               >
-                <span className="w-12 h-12 rounded-full bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center">
-                  <Icon className="w-5 h-5 text-emerald-400" />
+                Get started
+              </Link>
+            </div>
+          </div>
+
+          {/* ---------------- FLANKING RIGHT CARDS ---------------- */}
+          {/* Card 4: Top-Right Tall Floating Photo */}
+          <div className="hidden md:block absolute right-4 lg:right-10 top-10 lg:top-14 w-48 lg:w-60 h-64 lg:h-76 rounded-3xl border-2 border-black bg-white p-1.5 shadow-solid rotate-3 hover:rotate-0 hover:scale-105 transition-all duration-300 z-10 group overflow-hidden">
+            <img
+              src="https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?auto=format&fit=crop&w=600&q=80"
+              alt="Community healthcare care package"
+              onError={(e) => {
+                e.currentTarget.src = "/images/education.jpg";
+              }}
+              className="w-full h-full object-cover rounded-[1.25rem] group-hover:scale-105 transition-transform"
+            />
+          </div>
+
+          {/* Card 5: Bottom-Right Vertical Floating Photo */}
+          <div className="hidden md:block absolute right-6 lg:right-16 bottom-10 lg:bottom-14 w-44 lg:w-56 h-52 lg:h-64 rounded-3xl border-2 border-black bg-white p-1.5 shadow-solid -rotate-3 hover:rotate-0 hover:scale-105 transition-all duration-300 z-10 group overflow-hidden">
+            <img
+              src="https://images.unsplash.com/photo-1593113646773-028c64a8f1b8?auto=format&fit=crop&w=600&q=80"
+              alt="Monetra verified supplies delivered"
+              onError={(e) => {
+                e.currentTarget.src = "/images/donation.webp";
+              }}
+              className="w-full h-full object-cover rounded-[1.25rem] group-hover:scale-105 transition-transform"
+            />
+          </div>
+        </div>
+
+        {/* Mobile Photo Carousel Strip (Only visible on small phones) */}
+        <div className="md:hidden mt-6 flex gap-3 overflow-x-auto pb-2 scrollbar-none">
+          <div className="shrink-0 w-44 h-44 rounded-2xl border-2 border-black bg-white p-1 shadow-solid-sm overflow-hidden">
+            <img
+              src="https://images.unsplash.com/photo-1584515979956-d9f6e5d09982?auto=format&fit=crop&w=400&q=80"
+              alt="Volunteer care"
+              onError={(e) => {
+                e.currentTarget.src = "/images/healthcare.jpg";
+              }}
+              className="w-full h-full object-cover rounded-xl"
+            />
+          </div>
+          <div className="shrink-0 w-44 h-44 rounded-2xl border-2 border-black bg-white p-1 shadow-solid-sm overflow-hidden">
+            <img
+              src="https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?auto=format&fit=crop&w=400&q=80"
+              alt="Relief supplies"
+              onError={(e) => {
+                e.currentTarget.src = "/images/education.jpg";
+              }}
+              className="w-full h-full object-cover rounded-xl"
+            />
+          </div>
+          <div className="shrink-0 w-44 h-44 rounded-2xl border-2 border-black bg-white p-1 shadow-solid-sm overflow-hidden">
+            <img
+              src="https://images.unsplash.com/photo-1593113646773-028c64a8f1b8?auto=format&fit=crop&w=400&q=80"
+              alt="Verified impact"
+              onError={(e) => {
+                e.currentTarget.src = "/images/donation.webp";
+              }}
+              className="w-full h-full object-cover rounded-xl"
+            />
+          </div>
+        </div>
+      </section>
+
+      {/* =========================================================================
+          FEATURED CAUSES SECTION
+         ========================================================================= */}
+      <section className="py-16 lg:py-24 px-6 lg:px-8 max-w-7xl mx-auto w-full">
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-12">
+          <div>
+            <div className="inline-flex items-center gap-2 rounded-full border-2 border-black bg-[#22c55e] px-3.5 py-1 text-xs font-black text-slate-950 shadow-solid-sm mb-3">
+              <span>✦</span>
+              <span>VERIFIED COMMUNITY CAUSES</span>
+            </div>
+            <h2 className="font-editorial text-3xl sm:text-5xl font-black text-(--app-text) tracking-tight">
+              Causes Needing Help Today
+            </h2>
+            <p className="text-slate-600 text-sm mt-2 max-w-xl">
+              Reviewed and authorized by our Trust Desk. 100% of donations go directly to treatment and beneficiary recovery.
+            </p>
+          </div>
+
+          <Link
+            href="/donate"
+            className="inline-flex items-center gap-2 rounded-xl border-2 border-black bg-white hover:bg-slate-100 px-5 py-2.5 text-xs font-black text-slate-950 shadow-solid hover:translate-y-0.5 hover:shadow-solid-sm transition-all self-start sm:self-auto"
+          >
+            Explore All Causes &rarr;
+          </Link>
+        </div>
+
+        {loading ? (
+          <div className="py-24 text-center text-slate-500 text-sm font-semibold">
+            Loading active fundraisers...
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {featuredFundraisers.map((f) => (
+              <FundraiserCard key={f._id} fundraiser={f} />
+            ))}
+          </div>
+        )}
+      </section>
+
+      {/* =========================================================================
+          HOW MONETRA WORKS (3 SOLID PILLARS)
+         ========================================================================= */}
+      <section className="py-16 lg:py-24 px-6 lg:px-8 border-t-2 border-black/15 bg-(--app-bg)">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center max-w-2xl mx-auto mb-16">
+            <span className="inline-flex items-center gap-1.5 rounded-full border-2 border-black bg-[#22c55e] px-3.5 py-1 text-xs font-black text-slate-950 shadow-solid-sm">
+              <span>🛡️</span>
+              <span>100% TRANSPARENT PROCESS</span>
+            </span>
+            <h2 className="font-editorial text-3xl sm:text-5xl font-black text-(--app-text) tracking-tight mt-3">
+              How Monetra Works
+            </h2>
+            <p className="text-slate-600 text-sm mt-2">
+              A structured, verified crowdfunding pipeline built to protect donors and empower genuine families in crisis.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {/* Step 1 */}
+            <div className="rounded-3xl border-2 border-black bg-white text-slate-900 p-8 flex flex-col justify-between shadow-solid hover:translate-y-1 transition-transform">
+              <div>
+                <span className="text-xs font-black text-slate-950 rounded-lg bg-[#22c55e] border-2 border-black px-3 py-1 shadow-solid-sm">
+                  STEP 01
                 </span>
-                <h3 className="mt-6 text-lg font-bold text-white leading-snug">
-                  {item.title}
+                <h3 className="font-editorial text-2xl font-black text-slate-950 mt-6">
+                  Submit Story & Docs
                 </h3>
-                <p className="mt-3 text-sm text-slate-400 leading-relaxed">
-                  {item.description}
+                <p className="text-xs sm:text-sm text-slate-700 mt-3 leading-relaxed font-medium">
+                  Start your fundraiser in minutes. Upload patient admission records, hospital cost estimates, and government ID for authentication.
                 </p>
               </div>
-            );
-          })}
-        </div>
-
-        {/* Prev / next controls */}
-        <div className="mt-8 flex justify-center gap-3">
-          <button
-            type="button"
-            onClick={() => scrollByCard(-1)}
-            disabled={!canScrollLeft}
-            aria-label="Previous"
-            className="w-10 h-10 rounded-full border border-white/15 flex items-center justify-center text-slate-300 hover:text-white hover:border-emerald-400/50 disabled:opacity-30 disabled:hover:border-white/15 disabled:hover:text-slate-300 transition-colors"
-          >
-            <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M15 18 9 12l6-6" />
-            </svg>
-          </button>
-          <button
-            type="button"
-            onClick={() => scrollByCard(1)}
-            disabled={!canScrollRight}
-            aria-label="Next"
-            className="w-10 h-10 rounded-full border border-white/15 flex items-center justify-center text-slate-300 hover:text-white hover:border-emerald-400/50 disabled:opacity-30 disabled:hover:border-white/15 disabled:hover:text-slate-300 transition-colors"
-          >
-            <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="m9 18 6-6-6-6" />
-            </svg>
-          </button>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-const Home = () => {
-  return (
-    <main className="relative min-h-screen bg-[#060b10] overflow-hidden">
-      {/* Background image layer — put your bg image here */}
-      <div
-        className="absolute inset-0 bg-cover bg-center opacity-40"
-        style={{ backgroundImage: "url('/images/bg.jpg')" }}
-      />
-      <div className="absolute inset-0 bg-linear-to-b from-[#060b10]/60 via-[#060b10]/80 to-[#060b10]" />
-
-      <div className="relative z-10 mx-auto max-w-6xl px-6 pt-16 pb-24">
-        {/* Eyebrow */}
-        <div className="flex justify-center">
-          <span className="inline-flex items-center gap-2 rounded-full border border-emerald-500/40 bg-emerald-500/5 px-4 py-1.5 text-xs font-semibold tracking-widest text-emerald-400">
-            <span>✦</span> TOGETHER, WE CAN <span>✦</span>
-          </span>
-        </div>
-
-        {/* Headline */}
-        <h1 className="mt-6 text-center text-4xl sm:text-5xl font-extrabold leading-tight text-white">
-          Every Act of Kindness
-          <br />
-          <span className="text-emerald-400">Creates a Ripple of Hope</span>
-        </h1>
-
-        <p className="mt-4 text-center text-slate-300 max-w-xl mx-auto">
-          Join thousands of kind hearts who are making a real difference every
-          single day.
-        </p>
-
-        {/* Fanned photo arc */}
-        <div className="relative mt-16 h-72 sm:h-80">
-          <svg
-            viewBox="0 0 1000 200"
-            className="absolute inset-x-0 top-1/2 w-full h-40 -z-10"
-            preserveAspectRatio="none"
-          >
-            <path
-              d="M 50 180 Q 500 -60 950 180"
-              fill="none"
-              stroke="rgba(52, 211, 153, 0.5)"
-              strokeWidth="2"
-              strokeDasharray="6 8"
-            />
-          </svg>
-
-          {heroImages.map((img, i) => (
-            <div
-              key={i}
-              className={`absolute ${img.pos} ${img.rotate} w-40 h-52 sm:w-44 sm:h-56 rounded-2xl overflow-hidden border-4 border-white/90 shadow-2xl`}
-            >
-              <img
-                src={img.src}
-                alt="Community member"
-                className="w-full h-full object-cover"
-              />
+              <div className="mt-8 pt-5 border-t-2 border-slate-200 flex items-center gap-2 text-xs font-bold text-emerald-700">
+                <span>✓</span> Takes under 3 minutes
+              </div>
             </div>
-          ))}
-        </div>
 
-        {/* Two feature cards */}
-        <div className="mt-20 grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Donate card */}
-          <div className="rounded-3xl border border-emerald-500/30 bg-emerald-500/5 p-8 flex flex-col">
-            <div className="w-14 h-14 rounded-full bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center">
-              <HeartIcon className="w-6 h-6 text-emerald-400" />
+            {/* Step 2 */}
+            <div className="rounded-3xl border-2 border-black bg-white text-slate-900 p-8 flex flex-col justify-between shadow-solid hover:translate-y-1 transition-transform">
+              <div>
+                <span className="text-xs font-black text-slate-950 rounded-lg bg-[#22c55e] border-2 border-black px-3 py-1 shadow-solid-sm">
+                  STEP 02
+                </span>
+                <h3 className="font-editorial text-2xl font-black text-slate-950 mt-6">
+                  Trust Desk Verification
+                </h3>
+                <p className="text-xs sm:text-sm text-slate-700 mt-3 leading-relaxed font-medium">
+                  Our team checks hospital IPD admission numbers and doctor credentials. Once approved, the campaign receives the 🛡️ Verified badge.
+                </p>
+              </div>
+              <div className="mt-8 pt-5 border-t-2 border-slate-200 flex items-center gap-2 text-xs font-bold text-emerald-700">
+                <span>✓</span> Zero fraudulent campaigns
+              </div>
             </div>
-            <h2 className="mt-6 text-2xl font-bold text-white">Donate</h2>
-            <p className="mt-3 text-slate-300 text-sm leading-relaxed">
-              Support meaningful causes and help bring hope to those who need
-              it most. Your contribution can change lives.
-            </p>
 
-            <div className="mt-6 border-t border-white/10 pt-6 space-y-4">
-              <FeatureRow icon={<ShieldIcon className="w-4 h-4 text-emerald-400" />} text="Verified & Trusted Causes" />
-              <FeatureRow icon={<LockIcon className="w-4 h-4 text-emerald-400" />} text="Secure & Transparent Donations" />
-              <FeatureRow icon={<BoltIcon className="w-4 h-4 text-emerald-400" />} text="Make a Real Impact" />
+            {/* Step 3 */}
+            <div className="rounded-3xl border-2 border-black bg-white text-slate-900 p-8 flex flex-col justify-between shadow-solid hover:translate-y-1 transition-transform">
+              <div>
+                <span className="text-xs font-black text-slate-950 rounded-lg bg-[#38bdf8] border-2 border-black px-3 py-1 shadow-solid-sm">
+                  STEP 03
+                </span>
+                <h3 className="font-editorial text-2xl font-black text-slate-950 mt-6">
+                  Disbursement & Updates
+                </h3>
+                <p className="text-xs sm:text-sm text-slate-700 mt-3 leading-relaxed font-medium">
+                  Donors contribute seamlessly via UPI & Cards. Organizers post regular hospital recovery updates and treatment receipts directly to the campaign.
+                </p>
+              </div>
+              <div className="mt-8 pt-5 border-t-2 border-slate-200 flex items-center gap-2 text-xs font-bold text-emerald-700">
+                <span>✓</span> 100% receipt transparency
+              </div>
             </div>
-            <Link href="/donate">
-            <button className="mt-8 inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-400 hover:bg-emerald-300 transition-colors text-slate-900 font-semibold py-3">
-              Donate Now <ArrowIcon className="w-4 h-4" />
-            </button>
-            </Link>
-          </div>
-
-          {/* Raise a Fund card */}
-          <div className="rounded-3xl border border-sky-500/30 bg-sky-500/5 p-8 flex flex-col">
-            <div className="w-14 h-14 rounded-full bg-sky-500/10 border border-sky-500/30 flex items-center justify-center">
-              <UsersIcon className="w-6 h-6 text-sky-400" />
-            </div>
-            <h2 className="mt-6 text-2xl font-bold text-white">Raise a Fund</h2>
-            <p className="mt-3 text-slate-300 text-sm leading-relaxed">
-              Start a fundraiser for yourself or someone in need and let the
-              world come together to support your cause.
-            </p>
-
-            <div className="mt-6 border-t border-white/10 pt-6 space-y-4">
-              <FeatureRow icon={<ShareIcon className="w-4 h-4 text-sky-400" />} text="Share Your Story" />
-              <FeatureRow icon={<UsersIcon className="w-4 h-4 text-sky-400" />} text="Get Support from Others" />
-              <FeatureRow icon={<TargetIcon className="w-4 h-4 text-sky-400" />} text="Reach Your Goal Faster" />
-            </div>
-           <Link href="/fundraise">
-            <button className="mt-8 inline-flex items-center justify-center gap-2 rounded-xl bg-sky-500 hover:bg-sky-400 transition-colors text-white font-semibold py-3">
-              Start a Fundraiser <ArrowIcon className="w-4 h-4" />
-            </button>
-            </Link>
           </div>
         </div>
-      </div>
+      </section>
 
-      <WhyStartSection />
+      {/* =========================================================================
+          BOTTOM CALL TO ACTION BANNER
+         ========================================================================= */}
+      <section className="py-20 px-6 lg:px-8 max-w-7xl mx-auto w-full">
+        <div className="rounded-3xl border-2 border-black bg-[#3b82f6] p-10 sm:p-14 text-center sm:text-left flex flex-col sm:flex-row items-center justify-between gap-8 shadow-solid-lg">
+          <div className="max-w-2xl">
+            <h2 className="font-editorial text-3xl sm:text-4xl lg:text-5xl font-black text-[#e2ff3d] tracking-tight leading-tight drop-shadow-[0_2px_0_rgba(0,0,0,0.3)]">
+              Need emergency funding for someone you love?
+            </h2>
+            <p className="text-white text-sm sm:text-base font-medium mt-3 leading-relaxed">
+              Start a campaign today. Our verification desk will review your documents within 24 hours to begin receiving community support.
+            </p>
+          </div>
+
+          <Link
+            href="/fundraise/create"
+            className="rounded-xl bg-[#e2ff3d] hover:bg-[#d4ff00] text-slate-950 font-black px-8 py-4 text-sm border-2 border-black shadow-solid hover:translate-y-0.5 hover:shadow-solid-sm transition-all whitespace-nowrap active:translate-y-1"
+          >
+            Start a Fundraiser &rarr;
+          </Link>
+        </div>
+      </section>
+
+      {/* =========================================================================
+          FIXED FLOATING HELP BUTTON (EXACT PINK CIRCLE '?' FROM REFERENCE SCREENSHOT)
+         ========================================================================= */}
+      <div className="fixed bottom-6 right-6 z-50">
+        <button
+          type="button"
+          onClick={() => setShowHelpModal((prev) => !prev)}
+          aria-label="Need Help or Verification Assistance?"
+          className="w-12 h-12 rounded-full bg-[#ff70a6] text-white font-black text-2xl border-2 border-black shadow-solid flex items-center justify-center hover:scale-110 active:translate-y-0.5 transition-all cursor-pointer"
+        >
+          ?
+        </button>
+
+        {showHelpModal && (
+          <div className="absolute bottom-16 right-0 w-80 rounded-3xl bg-white border-2 border-black p-5 shadow-solid-lg text-slate-900 animate-in fade-in slide-in-from-bottom-2 duration-150">
+            <div className="flex items-center justify-between pb-3 border-b-2 border-slate-100">
+              <div className="flex items-center gap-2">
+                <span className="w-6 h-6 rounded-full bg-[#ff70a6] text-white font-black text-xs flex items-center justify-center">
+                  ?
+                </span>
+                <span className="font-editorial text-base font-black text-slate-950">
+                  Monetra Help Desk
+                </span>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowHelpModal(false)}
+                className="w-6 h-6 rounded-full border border-black flex items-center justify-center text-xs font-bold hover:bg-slate-100 cursor-pointer"
+              >
+                ✕
+              </button>
+            </div>
+            <div className="py-3 text-xs text-slate-700 space-y-2">
+              <p>
+                <strong>Need help starting a campaign?</strong> Our Trust Desk team is available to assist with document uploads and hospital verification.
+              </p>
+              <div className="bg-slate-50 border border-slate-200 rounded-xl p-2.5 space-y-1">
+                <p className="font-bold text-slate-900">🛡️ Direct Support:</p>
+                <p className="text-slate-600">support@monetra.org</p>
+                <p className="text-slate-600">Mon - Sat: 9:00 AM - 8:00 PM</p>
+              </div>
+            </div>
+            <div className="pt-2 border-t-2 border-slate-100 flex gap-2">
+              <Link
+                href="/admin/verification"
+                onClick={() => setShowHelpModal(false)}
+                className="flex-1 text-center py-2 rounded-xl bg-[#22c55e] border border-black text-slate-950 font-black text-xs hover:bg-[#16a34a] transition-colors"
+              >
+                Trust Desk
+              </Link>
+              <Link
+                href="/fundraise"
+                onClick={() => setShowHelpModal(false)}
+                className="flex-1 text-center py-2 rounded-xl bg-slate-100 border border-black text-slate-950 font-black text-xs hover:bg-slate-200 transition-colors"
+              >
+                How It Works
+              </Link>
+            </div>
+          </div>
+        )}
+      </div>
     </main>
   );
 }
-export default Home;

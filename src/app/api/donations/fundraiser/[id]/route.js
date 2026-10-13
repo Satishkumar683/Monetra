@@ -14,10 +14,21 @@ export async function GET(req, { params }) {
       );
     }
 
+    const { searchParams } = new URL(req.url);
+    const filter = searchParams.get("filter") || "recent"; // "top" | "recent"
+    const limitParam = parseInt(searchParams.get("limit") || "30", 10);
+    const limit = Math.min(Math.max(limitParam, 1), 100);
+
     await connectDB();
 
+    const sortCriteria =
+      filter === "top"
+        ? { amount: -1, createdAt: -1 }
+        : { createdAt: -1 };
+
     const donations = await Donation.find({ fundraiser: id, status: "Success" })
-      .sort({ createdAt: -1 })
+      .sort(sortCriteria)
+      .limit(limit)
       .populate("donor", "name image")
       .lean();
 
@@ -27,7 +38,14 @@ export async function GET(req, { params }) {
       donor: d.anonymous ? null : d.donor,
     }));
 
-    return NextResponse.json({ success: true, donations: sanitized });
+    return NextResponse.json(
+      { success: true, donations: sanitized, filter },
+      {
+        headers: {
+          "Cache-Control": "public, s-maxage=15, stale-while-revalidate=60",
+        },
+      }
+    );
   } catch (err) {
     console.error("GET /api/donations/fundraiser/[id] error:", err);
     return NextResponse.json(

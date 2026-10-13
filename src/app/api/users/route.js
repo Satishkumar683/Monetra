@@ -4,6 +4,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/authOptions";
 import { connectDB } from "@/lib/mongodb";
 import User from "@/models/User";
+import { updateUserSchema, validateBody } from "@/lib/validations";
 
 export async function PATCH(req) {
   try {
@@ -18,7 +19,14 @@ export async function PATCH(req) {
     }
 
     const body = await req.json();
-    const { name, bio, city, country, image } = body;
+    const validation = validateBody(updateUserSchema, body);
+    if (!validation.success) {
+      return NextResponse.json(
+        { success: false, message: validation.error },
+        { status: 400 }
+      );
+    }
+    const { name, bio, city, country, image } = validation.data;
 
     const update = {};
     if (typeof name === "string" && name.trim()) update.name = name.trim();

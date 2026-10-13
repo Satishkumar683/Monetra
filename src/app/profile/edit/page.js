@@ -4,8 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { Country, City } from "country-state-city";
-
-const MAX_IMAGE_SIZE_MB = 2;
+import { MAX_IMAGE_SIZE_MB } from "@/lib/constants";
 
 export default function EditProfilePage() {
   const { data: session, status, update } = useSession();
@@ -191,46 +190,57 @@ if (data.success) {
 
   if (status === "loading") {
     return (
-      <main className="min-h-screen bg-[#060b10] flex items-center justify-center">
-        <p className="text-slate-400">Loading...</p>
+      <main className="min-h-screen bg-(--app-bg) text-(--app-text) flex items-center justify-center">
+        <div className="inline-flex items-center gap-3 bg-white border-2 border-black px-6 py-3 rounded-full shadow-solid">
+          <svg className="animate-spin w-5 h-5 text-slate-950" viewBox="0 0 24 24" fill="none">
+            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
+          </svg>
+          <span className="font-editorial text-sm font-bold text-slate-950">Loading profile...</span>
+        </div>
       </main>
     );
   }
 
   if (status === "unauthenticated") {
     return (
-      <main className="min-h-screen bg-[#060b10] flex flex-col items-center justify-center gap-4 px-8 text-center">
-        <h1 className="text-2xl font-bold text-white">
-          Sign in to edit your profile
-        </h1>
-        <button
-          onClick={() => router.push("/login")}
-          className="mt-2 inline-flex items-center gap-2 rounded-full bg-emerald-400 hover:bg-emerald-300 transition-colors text-slate-900 font-semibold px-6 py-3"
-        >
-          Go to Login
-        </button>
+      <main className="min-h-screen bg-(--app-bg) text-(--app-text) flex flex-col items-center justify-center gap-4 px-8 text-center">
+        <div className="rounded-3xl border-2 border-black bg-white p-8 max-w-md shadow-solid-lg">
+          <h1 className="font-editorial text-2xl font-black text-slate-950">
+            Sign in to edit your profile
+          </h1>
+          <p className="mt-2 text-sm text-slate-600 font-medium">
+            You must be logged in to modify your creator information.
+          </p>
+          <button
+            onClick={() => router.push("/login")}
+            className="mt-6 inline-flex items-center gap-2 rounded-2xl bg-[#22c55e] hover:bg-[#16a34a] text-slate-950 font-black px-6 py-3 border-2 border-black shadow-solid cursor-pointer"
+          >
+            Go to Login ✦
+          </button>
+        </div>
       </main>
     );
   }
 
   return (
-    <main className="min-h-screen bg-[#060b10] px-8 py-16">
-      <div className="max-w-2xl mx-auto">
-        <span className="inline-flex items-center gap-2 rounded-full border border-emerald-500/40 bg-emerald-500/5 px-4 py-1.5 text-xs font-medium text-emerald-400">
-          Edit Profile
+    <main className="min-h-screen bg-(--app-bg) text-(--app-text) px-4 sm:px-8 py-16">
+      <div className="max-w-2xl mx-auto rounded-3xl border-2 border-black bg-white p-6 sm:p-10 shadow-solid-lg">
+        <span className="inline-flex items-center gap-2 rounded-full border-2 border-black bg-[#22c55e] px-3.5 py-1 text-xs font-black text-slate-950 shadow-solid-sm">
+          ✦ Account Settings
         </span>
 
-        <h1 className="mt-6 font-serif text-4xl font-bold text-white">
+        <h1 className="mt-4 font-editorial text-3xl sm:text-4xl font-black tracking-tight text-slate-950">
           Update your profile
         </h1>
-        <p className="mt-3 text-slate-400">
-          Update how you appear to donors and other creators.
+        <p className="mt-1 text-sm text-slate-600 font-medium">
+          Control how you appear to donors, backers, and fellow fundraisers.
         </p>
 
-        <form onSubmit={handleSubmit} className="mt-10 space-y-6">
+        <form onSubmit={handleSubmit} className="mt-8 space-y-6">
           {/* Profile image */}
           <div>
-            <label className="block text-sm font-medium text-slate-200 mb-2">
+            <label className="block font-editorial text-sm font-black text-slate-950 mb-2">
               Profile Photo
             </label>
 
@@ -238,17 +248,17 @@ if (data.success) {
               <img
                 src={imagePreview || "/default-avatar.png"}
                 alt="Profile preview"
-                className="w-20 h-20 rounded-full border border-white/10 object-cover shrink-0"
+                className="w-20 h-20 rounded-full border-2 border-black object-cover shrink-0 shadow-solid-sm"
               />
 
               <label
                 htmlFor="profileImageFile"
-                className="flex-1 flex flex-col items-center justify-center gap-1 rounded-xl border border-dashed border-white/15 bg-white/[0.02] px-4 py-5 text-center cursor-pointer hover:border-emerald-500/50 hover:bg-white/[0.04] transition-colors"
+                className="flex-1 flex flex-col items-center justify-center gap-1 rounded-2xl border-2 border-dashed border-black bg-slate-50 px-4 py-5 text-center cursor-pointer hover:bg-slate-100 transition-colors shadow-solid-sm"
               >
-                <span className="text-sm text-slate-300 font-medium">
+                <span className="text-xs sm:text-sm text-slate-950 font-black">
                   {imageName || "Click to upload a new photo"}
                 </span>
-                <span className="text-xs text-slate-500">
+                <span className="text-xs text-slate-500 font-medium">
                   PNG or JPG, up to {MAX_IMAGE_SIZE_MB}MB
                 </span>
                 <input
@@ -265,8 +275,8 @@ if (data.success) {
 
           {/* Name */}
           <div>
-            <label htmlFor="name" className="block text-sm font-medium text-slate-200 mb-2">
-              Name
+            <label htmlFor="name" className="block font-editorial text-sm font-black text-slate-950 mb-1.5">
+              Full Name
             </label>
             <input
               id="name"
@@ -274,30 +284,30 @@ if (data.success) {
               type="text"
               value={form.name}
               onChange={handleChange}
-              className="w-full rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 text-white placeholder:text-slate-500 focus:outline-none focus:border-emerald-500/60"
+              className="w-full rounded-2xl border-2 border-black bg-slate-50 px-4 py-3 text-slate-950 font-bold text-sm shadow-[0_2px_0_#000] focus:bg-white focus:outline-none"
             />
           </div>
 
           {/* Email (read-only) */}
           <div>
-            <label className="block text-sm font-medium text-slate-200 mb-2">
-              Email
+            <label className="block font-editorial text-sm font-black text-slate-950 mb-1.5">
+              Email Address
             </label>
             <input
               type="email"
               value={session.user.email || ""}
               disabled
-              className="w-full rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 text-slate-500 cursor-not-allowed"
+              className="w-full rounded-2xl border-2 border-slate-300 bg-slate-100 px-4 py-3 text-slate-400 font-semibold text-sm cursor-not-allowed"
             />
-            <p className="text-xs text-slate-600 mt-1">
-              Email can&apos;t be changed here.
+            <p className="text-xs text-slate-500 mt-1.5 font-medium">
+              Verified through OAuth provider and cannot be changed here.
             </p>
           </div>
 
           {/* Bio */}
           <div>
-            <label htmlFor="bio" className="block text-sm font-medium text-slate-200 mb-2">
-              Bio
+            <label htmlFor="bio" className="block font-editorial text-sm font-black text-slate-950 mb-1.5">
+              Bio & Background
             </label>
             <textarea
               id="bio"
@@ -306,18 +316,18 @@ if (data.success) {
               maxLength={200}
               value={form.bio}
               onChange={handleChange}
-              placeholder="Tell donors a little about yourself..."
-              className="w-full rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 text-white placeholder:text-slate-500 focus:outline-none focus:border-emerald-500/60 resize-none"
+              placeholder="Tell donors a little about yourself, your mission, and your community work..."
+              className="w-full rounded-2xl border-2 border-black bg-slate-50 px-4 py-3 text-slate-950 font-medium text-sm shadow-[0_2px_0_#000] focus:bg-white focus:outline-none resize-none"
             />
-            <p className="text-xs text-slate-600 mt-1 text-right">
+            <p className="text-xs text-slate-500 mt-1 text-right font-bold">
               {form.bio.length}/200
             </p>
           </div>
 
           {/* Country / City */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
             <div>
-              <label htmlFor="country" className="block text-sm font-medium text-slate-200 mb-2">
+              <label htmlFor="country" className="block font-editorial text-sm font-black text-slate-950 mb-1.5">
                 Country
               </label>
               <select
@@ -325,13 +335,11 @@ if (data.success) {
                 name="country"
                 value={form.country}
                 onChange={handleCountryChange}
-                className="w-full rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 text-white focus:outline-none focus:border-emerald-500/60"
+                className="w-full rounded-2xl border-2 border-black bg-slate-50 px-4 py-3 text-slate-950 font-bold text-sm shadow-[0_2px_0_#000] focus:bg-white focus:outline-none cursor-pointer"
               >
-                <option value="" className="bg-[#060b10]">
-                  Select country
-                </option>
+                <option value="">Select country</option>
                 {countries.map((c) => (
-                  <option key={c.isoCode} value={c.name} className="bg-[#060b10]">
+                  <option key={c.isoCode} value={c.name}>
                     {c.name}
                   </option>
                 ))}
@@ -339,7 +347,7 @@ if (data.success) {
             </div>
 
             <div>
-              <label htmlFor="city" className="block text-sm font-medium text-slate-200 mb-2">
+              <label htmlFor="city" className="block font-editorial text-sm font-black text-slate-950 mb-1.5">
                 City
               </label>
               <select
@@ -348,16 +356,15 @@ if (data.success) {
                 value={form.city}
                 onChange={handleChange}
                 disabled={!form.country}
-                className="w-full rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 text-white focus:outline-none focus:border-emerald-500/60 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full rounded-2xl border-2 border-black bg-slate-50 px-4 py-3 text-slate-950 font-bold text-sm shadow-[0_2px_0_#000] focus:bg-white focus:outline-none cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                <option value="" className="bg-[#060b10]">
+                <option value="">
                   {form.country ? "Select city" : "Select country first"}
                 </option>
                 {cities.map((city) => (
                   <option
                     key={`${city.name}-${city.latitude}`}
                     value={city.name}
-                    className="bg-[#060b10]"
                   >
                     {city.name}
                   </option>
@@ -367,28 +374,28 @@ if (data.success) {
           </div>
 
           {error && (
-            <p className="text-sm text-red-400 bg-red-500/10 border border-red-500/20 rounded-xl px-4 py-3">
-              {error}
+            <p className="text-xs sm:text-sm text-red-800 bg-red-100 border-2 border-black rounded-xl px-4 py-3 font-bold shadow-solid-sm">
+              ⚠️ {error}
             </p>
           )}
           {success && (
-            <p className="text-sm text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 rounded-xl px-4 py-3">
-              Profile updated! Redirecting...
+            <p className="text-xs sm:text-sm text-emerald-800 bg-emerald-100 border-2 border-black rounded-xl px-4 py-3 font-bold shadow-solid-sm">
+              ✓ Profile updated successfully! Redirecting...
             </p>
           )}
 
-          <div className="flex gap-3">
+          <div className="flex flex-col sm:flex-row gap-3 pt-2">
             <button
               type="submit"
               disabled={saving}
-              className="flex-1 inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-400 hover:bg-emerald-300 disabled:opacity-60 disabled:cursor-not-allowed transition-colors text-slate-900 font-semibold py-3"
+              className="flex-1 inline-flex items-center justify-center gap-2 rounded-2xl bg-[#22c55e] hover:bg-[#16a34a] disabled:opacity-60 disabled:cursor-not-allowed transition-all text-slate-950 font-black py-3.5 text-sm border-2 border-black shadow-solid hover:translate-y-0.5 hover:shadow-solid-sm active:translate-y-1 cursor-pointer"
             >
-              {saving ? "Saving..." : "Save Changes"}
+              {saving ? "Saving..." : "Save Changes ✦"}
             </button>
             <button
               type="button"
               onClick={() => router.push("/profile")}
-              className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/15 bg-white/5 hover:bg-white/10 transition-colors text-white font-medium px-6 py-3"
+              className="inline-flex items-center justify-center gap-2 rounded-2xl border-2 border-black bg-slate-100 hover:bg-slate-200 transition-all text-slate-950 font-bold px-6 py-3.5 text-sm shadow-solid-sm hover:translate-y-0.5 active:translate-y-1 cursor-pointer"
             >
               Cancel
             </button>

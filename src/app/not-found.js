@@ -1,0 +1,25 @@
+import Link from "next/link";
+
+export default function NotFound() {
+  return (
+    <main className="min-h-screen bg-(--app-bg) text-(--app-text) flex flex-col items-center justify-center px-4 text-center">
+      <div className="rounded-3xl border-2 border-black bg-white p-8 sm:p-12 max-w-md w-full shadow-solid-lg">
+        <div className="w-16 h-16 rounded-full bg-[#ff70a6] border-2 border-black flex items-center justify-center mx-auto shadow-solid-sm mb-4">
+          <span className="font-editorial text-2xl font-black text-slate-950">404</span>
+        </div>
+        <h1 className="font-editorial text-3xl font-black text-slate-950">
+          Page not found
+        </h1>
+        <p className="text-slate-600 font-medium text-sm mt-2 mb-6">
+          The page you&apos;re looking for doesn&apos;t exist, or has been moved to another coordinate.
+        </p>
+        <Link
+          href="/"
+          className="inline-flex items-center gap-2 rounded-2xl bg-[#e2ff3d] hover:bg-[#d4ff00] text-slate-950 font-black px-6 py-3.5 border-2 border-black shadow-solid hover:translate-y-0.5 hover:shadow-solid-sm active:translate-y-1 transition-all"
+        >
+          Return Home ✦
+        </Link>
+      </div>
+    </main>
+  );
+}

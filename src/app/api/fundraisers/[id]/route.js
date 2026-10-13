@@ -6,6 +6,7 @@ import Fundraiser from "@/models/Fundraiser";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/authOptions";
 import User from "@/models/User";
+import { updateFundraiserSchema, validateBody } from "@/lib/validations";
 export async function GET(req, { params }) {
   try {
     const { id } = await params;
@@ -30,7 +31,14 @@ export async function GET(req, { params }) {
       );
     }
 
-    return NextResponse.json({ success: true, fundraiser });
+    return NextResponse.json(
+      { success: true, fundraiser },
+      {
+        headers: {
+          "Cache-Control": "public, s-maxage=30, stale-while-revalidate=120",
+        },
+      }
+    );
   } catch (err) {
     console.error("GET /api/fundraisers/[id] error:", err);
     return NextResponse.json(
@@ -127,14 +135,15 @@ export async function PUT(req, { params }) {
     }
 
     const body = await req.json();
-    const { title, description, targetAmount, coverImage, category, documents } = body;
-
-    if (!title || !description || !targetAmount || !coverImage) {
+    const validation = validateBody(updateFundraiserSchema, body);
+    if (!validation.success) {
       return NextResponse.json(
-        { success: false, message: "Missing required fields." },
+        { success: false, message: validation.error },
         { status: 400 }
       );
     }
+    const validatedData = validation.data;
+    const { title, description, targetAmount, coverImage, category, documents } = validatedData;
 
     fundraiser.title = title;
     fundraiser.description = description;

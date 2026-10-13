@@ -1,5 +1,143 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *, .dark, .dark *));
+
+/* =========================================================================
+   MONETRA MODULAR THEME SYSTEM (LIGHT & DARK MODE)
+   ========================================================================= */
+:root {
+  color-scheme: light dark;
+  --app-bg: #f8fafc; /* Option 3: Nordic Clean Mist (Light default) */
+  --app-text: #090d16;
+  --app-text-muted: #475569;
+  --app-surface: #ffffff;
+  --app-surface-muted: #f1f5f9;
+  --app-border: #000000;
+  --app-green: #22c55e;
+  --app-green-hover: #16a34a;
+}
+
+.dark,
+[data-theme="dark"] {
+  color-scheme: dark;
+  --app-bg: #090d16; /* Deep Midnight Slate (Dark mode) */
+  --app-text: #f8fafc;
+  --app-text-muted: #94a3b8;
+  --app-surface: #111827;
+  --app-surface-muted: #1e293b;
+  --app-border: #334155;
+  --app-green: #22c55e;
+  --app-green-hover: #16a34a;
+}
+
+@theme {
+  --font-sans: var(--font-jakarta), system-ui, sans-serif;
+  --font-heading: var(--font-outfit), system-ui, sans-serif;
+  --font-display: var(--font-fraunces), Georgia, serif;
+  --color-app-bg: var(--app-bg);
+  --color-app-text: var(--app-text);
+  --color-app-green: var(--app-green);
+}
+
+body {
+  font-family: var(--font-jakarta), system-ui, sans-serif;
+  background-color: var(--app-bg);
+  color: var(--app-text);
+  transition: background-color 0.25s ease, color 0.25s ease;
+}
+
+.font-editorial, .font-fraunces {
+  font-family: var(--font-fraunces), Georgia, serif !important;
+}
+
+.font-heading {
+  font-family: var(--font-outfit), system-ui, sans-serif !important;
+  letter-spacing: -0.02em;
+}
+
+.shadow-solid {
+  box-shadow: 0 4px 0 #000000;
+}
+
+.shadow-solid-sm {
+  box-shadow: 0 3px 0 #000000;
+}
+
+.shadow-solid-lg {
+  box-shadow: 0 6px 0 #000000;
+}
+
+/* Dark mode shadow & surface adaptations */
+.dark .shadow-solid {
+  box-shadow: 0 4px 0 rgba(0, 0, 0, 0.7);
+}
+
+.dark .shadow-solid-sm {
+  box-shadow: 0 3px 0 rgba(0, 0, 0, 0.7);
+}
+
+.dark .shadow-solid-lg {
+  box-shadow: 0 6px 0 rgba(0, 0, 0, 0.7);
+}
+
+/* Dark mode semantic surface & border styles */
+.dark .bg-white:not([data-keep-light]) {
+  background-color: var(--app-surface);
+  color: var(--app-text);
+}
+
+.dark .bg-slate-50,
+.dark .bg-slate-100 {
+  background-color: var(--app-surface-muted);
+  color: var(--app-text);
+}
+
+.dark .bg-slate-200 {
+  background-color: #334155;
+  color: var(--app-text);
+}
+
+.dark .text-slate-950,
+.dark .text-slate-900,
+.dark .text-slate-800 {
+  color: #f8fafc;
+}
+
+.dark .text-slate-700,
+.dark .text-slate-600 {
+  color: #cbd5e1;
+}
+
+.dark .text-slate-500,
+.dark .text-slate-400 {
+  color: #94a3b8;
+}
+
+.dark .border-black {
+  border-color: #334155;
+}
+
+.dark .border-slate-100,
+.dark .border-slate-200,
+.dark .border-slate-300 {
+  border-color: #1e293b;
+}
+
+.dark .border-slate-800 {
+  border-color: #475569;
+}
+
+/* Green action elements always keep ultra-readable high contrast text */
+.dark .bg-\[\#22c55e\],
+.dark [data-accent-green] {
+  color: #020617 !important;
+}
+
+.dark .bg-\[\#22c55e\] *,
+.dark [data-accent-green] * {
+  color: #020617 !important;
+}
+
 .premium-scroll::-webkit-scrollbar {
   height: 10px;
 }

@@ -63,11 +63,52 @@ const FundraiserSchema = new Schema(
       type: [DocumentSchema],
       default: [],
     },
+
+    updates: [
+      {
+        title: { type: String, required: true, trim: true },
+        message: { type: String, required: true, trim: true },
+        createdAt: { type: Date, default: Date.now },
+      },
+    ],
+
+    verificationStatus: {
+      type: String,
+      enum: ["pending", "verified", "rejected", "action_required"],
+      default: "pending",
+    },
+
+    verificationBadge: {
+      type: String,
+      enum: ["standard", "hospital_verified", "field_verified", "none"],
+      default: "none",
+    },
+
+    verificationNote: {
+      type: String,
+      default: "",
+    },
+
+    verifiedAt: {
+      type: Date,
+      default: null,
+    },
+
+    verifiedBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      default: null,
+    },
   },
   {
     timestamps: true,
   }
 );
+
+FundraiserSchema.index({ isActive: 1, createdAt: -1 });
+FundraiserSchema.index({ verificationStatus: 1, createdAt: -1 });
+FundraiserSchema.index({ owner: 1 });
+FundraiserSchema.index({ category: 1 });
 
 const Fundraiser =
   mongoose.models.Fundraiser ||

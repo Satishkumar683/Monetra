@@ -6,6 +6,7 @@ import { connectDB } from "@/lib/mongodb";
 import Donation from "@/models/Donation";
 import Fundraiser from "@/models/Fundraiser";
 import User from "@/models/User";
+import { createDonationSchema, validateBody } from "@/lib/validations";
 
 export async function POST(req) {
   try {
@@ -20,18 +21,29 @@ export async function POST(req) {
     await connectDB();
 
     const body = await req.json();
-    const { fundraiserId, amount, message, anonymous } = body;
-
-    if (!fundraiserId || !mongoose.Types.ObjectId.isValid(fundraiserId)) {
+    const payload = {
+      ...body,
+      fundraiser: body.fundraiser || body.fundraiserId,
+    };
+    const validation = validateBody(createDonationSchema, payload);
+    if (!validation.success) {
       return NextResponse.json(
-        { success: false, message: "Invalid fundraiser ID." },
+        { success: false, message: validation.error },
         { status: 400 }
       );
     }
+    const {
+      fundraiser: fundraiserId,
+      amount,
+      message,
+      anonymous,
+      paymentId,
+      status,
+    } = validation.data;
 
-    if (!amount || Number(amount) <= 0) {
+    if (!mongoose.Types.ObjectId.isValid(fundraiserId)) {
       return NextResponse.json(
-        { success: false, message: "Donation amount must be greater than zero." },
+        { success: false, message: "Invalid fundraiser ID." },
         { status: 400 }
       );
     }
@@ -52,18 +64,25 @@ export async function POST(req) {
       );
     }
 
-    // NOTE: This is a simulated donation — no real payment gateway yet.
-    // Once Razorpay is integrated (Phase 5), this route should only be
-    // called AFTER server-side signature verification succeeds, and
-    // paymentId below should be the real razorpay_payment_id.
+    if (fundraiser.verificationStatus !== "verified") {
+      return NextResponse.json(
+        {
+          success: false,
+          message:
+            "This fundraiser is under verification and cannot accept donations.",
+        },
+        { status: 403 }
+      );
+    }
+
     const donation = await Donation.create({
       donor: user._id,
       fundraiser: fundraiser._id,
       amount: Number(amount),
       message: message || "",
       anonymous: Boolean(anonymous),
-      paymentId: null,
-      status: "Success",
+      paymentId: paymentId || null,
+      status: status || "Success",
     });
 
     // Increment atomically rather than read-modify-write, to avoid
@@ -73,6 +92,15 @@ export async function POST(req) {
       { $inc: { currentAmount: Number(amount) } },
       { new: true }
     );
+
+    try {
+      const { revalidatePath } = await import("next/cache");
+      revalidatePath(`/fundraiser/${fundraiserId}`);
+      revalidatePath("/donate");
+      revalidatePath("/");
+    } catch (e) {
+      console.warn("revalidatePath notice:", e?.message);
+    }
 
     return NextResponse.json({
       success: true,
