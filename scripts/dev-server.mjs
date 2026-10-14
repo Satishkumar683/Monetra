@@ -2,7 +2,7 @@ import { spawn } from 'child_process';
 
 const child = spawn(
   'node',
-  ['--max-http-header-size=262144', './node_modules/next/dist/bin/next', 'dev'],
+  ['--max-http-header-size=262144', './node_modules/next/dist/bin/next', 'dev', '-p', '3000'],
   {
     stdio: ['ignore', 'inherit', 'inherit'],
     shell: false,
