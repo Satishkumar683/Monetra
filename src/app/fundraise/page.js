@@ -47,7 +47,7 @@ export default function FundraisePage() {
       <section className="relative px-4 sm:px-6 lg:px-8 pt-8 pb-16">
         <div className="max-w-7xl mx-auto rounded-[2.5rem] bg-[#3b82f6] border-2 border-black shadow-solid-lg p-8 sm:p-14 lg:p-16 flex flex-col lg:flex-row items-center justify-between gap-12 overflow-hidden">
           <div className="max-w-xl">
-            <span className="inline-flex items-center gap-2 rounded-full border-2 border-black bg-[#e2ff3d] px-4 py-1.5 text-xs font-black text-slate-950 shadow-solid-sm">
+            <span className="inline-flex items-center gap-2 rounded-full border-2 border-black bg-[#e2ff3d] px-4 py-1.5 text-xs font-black text-slate-950 dark:text-slate-950 shadow-solid-sm">
               <span>✦</span> START A VERIFIED FUNDRAISER
             </span>
 
@@ -64,7 +64,7 @@ export default function FundraisePage() {
             <div className="mt-8 flex flex-wrap gap-4">
               <Link
                 href="/fundraise/create"
-                className="inline-flex items-center justify-center rounded-xl bg-[#e2ff3d] hover:bg-[#d4ff00] text-slate-950 font-black text-sm px-8 py-3.5 border-2 border-black shadow-solid hover:translate-y-0.5 hover:shadow-solid-sm active:translate-y-1 transition-all"
+                className="inline-flex items-center justify-center rounded-xl bg-[#e2ff3d] hover:bg-[#d4ff00] text-slate-950 dark:text-slate-950 font-black text-sm px-8 py-3.5 border-2 border-black shadow-solid hover:translate-y-0.5 hover:shadow-solid-sm active:translate-y-1 transition-all"
               >
                 Start a Fundraiser Now &rarr;
               </Link>

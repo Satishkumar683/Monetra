@@ -18,7 +18,7 @@ export default function ProfileError({ error, reset }) {
         <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
           <button
             onClick={reset}
-            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-2xl bg-[#e2ff3d] hover:bg-[#d4ff00] text-slate-950 font-black px-6 py-3.5 border-2 border-black shadow-solid hover:translate-y-0.5 hover:shadow-solid-sm active:translate-y-1 transition-all cursor-pointer"
+            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-2xl bg-[#e2ff3d] hover:bg-[#d4ff00] text-slate-950 dark:text-slate-950 font-black px-6 py-3.5 border-2 border-black shadow-solid hover:translate-y-0.5 hover:shadow-solid-sm active:translate-y-1 transition-all cursor-pointer"
           >
             Try Again ✦
           </button>

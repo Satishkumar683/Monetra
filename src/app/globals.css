@@ -127,13 +127,34 @@ body {
   border-color: #475569;
 }
 
-/* Green action elements always keep ultra-readable high contrast text */
+/* High-contrast ink text for bright accent backgrounds (yellow, lime, amber, green) */
+.dark .bg-\[\#e2ff3d\],
+.dark .bg-\[\#e2ff3d\] *,
+.dark .bg-\[\#d4ff00\],
+.dark .bg-\[\#d4ff00\] *,
 .dark .bg-\[\#22c55e\],
-.dark [data-accent-green] {
-  color: #020617 !important;
-}
-
 .dark .bg-\[\#22c55e\] *,
+.dark .bg-amber-50,
+.dark .bg-amber-50 *,
+.dark .bg-amber-100,
+.dark .bg-amber-100 *,
+.dark .bg-amber-200,
+.dark .bg-amber-200 *,
+.dark .bg-amber-300,
+.dark .bg-amber-300 *,
+.dark .bg-amber-400,
+.dark .bg-amber-400 *,
+.dark .bg-yellow-100,
+.dark .bg-yellow-100 *,
+.dark .bg-yellow-200,
+.dark .bg-yellow-200 *,
+.dark .bg-yellow-300,
+.dark .bg-yellow-300 *,
+.dark .bg-yellow-400,
+.dark .bg-yellow-400 *,
+.dark [data-accent-yellow],
+.dark [data-accent-yellow] *,
+.dark [data-accent-green],
 .dark [data-accent-green] * {
   color: #020617 !important;
 }

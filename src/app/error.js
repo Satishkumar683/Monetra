@@ -15,7 +15,7 @@ export default function GlobalError({ error, reset }) {
         </p>
         <button
           onClick={reset}
-          className="inline-flex items-center gap-2 rounded-2xl bg-[#e2ff3d] hover:bg-[#d4ff00] text-slate-950 font-black px-6 py-3.5 border-2 border-black shadow-solid hover:translate-y-0.5 hover:shadow-solid-sm active:translate-y-1 transition-all cursor-pointer"
+          className="inline-flex items-center gap-2 rounded-2xl bg-[#e2ff3d] hover:bg-[#d4ff00] text-slate-950 dark:text-slate-950 font-black px-6 py-3.5 border-2 border-black shadow-solid hover:translate-y-0.5 hover:shadow-solid-sm active:translate-y-1 transition-all cursor-pointer"
         >
           Try Again ✦
         </button>

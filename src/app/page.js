@@ -95,7 +95,7 @@ export default function Home() {
             <div className="mt-8">
               <Link
                 href="/fundraise/create"
-                className="inline-flex items-center justify-center rounded-xl bg-[#e2ff3d] hover:bg-[#d4ff00] text-slate-950 font-black text-sm px-8 py-3.5 border-2 border-black shadow-solid hover:translate-y-0.5 hover:shadow-solid-sm active:translate-y-1 transition-all"
+                className="inline-flex items-center justify-center rounded-xl bg-[#e2ff3d] hover:bg-[#d4ff00] text-slate-950 dark:text-slate-950 font-black text-sm px-8 py-3.5 border-2 border-black shadow-solid hover:translate-y-0.5 hover:shadow-solid-sm active:translate-y-1 transition-all"
               >
                 Get started
               </Link>
@@ -294,7 +294,7 @@ export default function Home() {
 
           <Link
             href="/fundraise/create"
-            className="rounded-xl bg-[#e2ff3d] hover:bg-[#d4ff00] text-slate-950 font-black px-8 py-4 text-sm border-2 border-black shadow-solid hover:translate-y-0.5 hover:shadow-solid-sm transition-all whitespace-nowrap active:translate-y-1"
+            className="rounded-xl bg-[#e2ff3d] hover:bg-[#d4ff00] text-slate-950 dark:text-slate-950 font-black px-8 py-4 text-sm border-2 border-black shadow-solid hover:translate-y-0.5 hover:shadow-solid-sm transition-all whitespace-nowrap active:translate-y-1"
           >
             Start a Fundraiser &rarr;
           </Link>
