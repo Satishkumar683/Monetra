@@ -28,6 +28,10 @@ export default function ProfilePage() {
   const [avatarError, setAvatarError] = useState(false);
 
   useEffect(() => {
+    setAvatarError(false);
+  }, [session?.user?.image]);
+
+  useEffect(() => {
     if (status !== "authenticated") return;
 
     async function loadDonations() {

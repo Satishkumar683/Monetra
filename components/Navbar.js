@@ -22,6 +22,10 @@ export default function Navbar() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  useEffect(() => {
+    setAvatarError(false);
+  }, [session?.user?.image]);
+
   return (
     <header className="sticky top-0 z-50 w-full px-4 sm:px-8 py-3 sm:py-3.5 mb-5 sm:mb-7 bg-[color-mix(in_srgb,var(--app-bg)_85%,transparent)] backdrop-blur-md border-b-2 border-black/10 dark:border-slate-800/80 transition-colors">
       <div className="max-w-7xl mx-auto relative flex items-center justify-between gap-4">

@@ -91,8 +91,8 @@ export const authOptions = {
             await existingUser.save();
           }
 
-          if (user?.image && existingUser.image !== user.image) {
-            // Keep google/oauth avatar updated and purge legacy base64 strings
+          if (user?.image && (!existingUser.image || existingUser.image.startsWith("data:"))) {
+            // Keep google/oauth avatar updated only if not set, and purge legacy base64 strings
             existingUser.image = user.image;
             await existingUser.save();
           }
@@ -105,10 +105,18 @@ export const authOptions = {
       }
     },
 
-  async jwt({ token, user }) {
+  async jwt({ token, user, trigger, session }) {
   const email = user?.email || token?.email;
 
   if (!email) return token;
+
+  if (trigger === "update" && session) {
+    if (session.name) token.name = session.name;
+    if (session.image !== undefined) token.image = session.image;
+    if (session.bio !== undefined) token.bio = session.bio;
+    if (session.city !== undefined) token.city = session.city;
+    if (session.country !== undefined) token.country = session.country;
+  }
 
   try {
     await connectDB();
@@ -121,10 +129,20 @@ export const authOptions = {
       token.email = dbUser.email;
       
       // CRITICAL: Never put data: base64 in cookie to prevent 431 header overflow
-      const rawImage = dbUser.image || user?.image || token.picture || "";
-      token.image = (typeof rawImage === "string" && !rawImage.startsWith("data:") && rawImage.length < 1000)
-        ? rawImage
-        : (typeof user?.image === "string" && !user.image.startsWith("data:") && user.image.length < 1000)
+      const rawImage =
+        dbUser.image ||
+        (trigger === "update" && session?.image) ||
+        user?.image ||
+        token.picture ||
+        "";
+      token.image =
+        typeof rawImage === "string" &&
+        !rawImage.startsWith("data:") &&
+        rawImage.length < 1000
+          ? rawImage
+          : typeof user?.image === "string" &&
+            !user.image.startsWith("data:") &&
+            user.image.length < 1000
           ? user.image
           : "";
 

@@ -24,6 +24,7 @@ export default function EditProfilePage() {
   const [countries] = useState(() => Country.getAllCountries());
   const [cities, setCities] = useState([]);
 
+  const [uploadingImage, setUploadingImage] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
@@ -85,6 +86,8 @@ export default function EditProfilePage() {
     return;
   }
 
+  setUploadingImage(true);
+
   try {
     setImageName(file.name);
 
@@ -111,19 +114,25 @@ export default function EditProfilePage() {
       throw new Error(signData.error || "Could not sign upload");
     }
 
+    const apiKey =
+      signData.apiKey || process.env.NEXT_PUBLIC_CLOUDINARY_API_KEY;
+    const cloudName =
+      signData.cloudName || process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
+
+    if (!apiKey || !cloudName) {
+      throw new Error("Cloudinary configuration missing. Please check your settings.");
+    }
+
     const formData = new FormData();
 
     formData.append("file", file);
-    formData.append(
-      "api_key",
-      process.env.NEXT_PUBLIC_CLOUDINARY_API_KEY
-    );
+    formData.append("api_key", apiKey);
     formData.append("timestamp", timestamp);
     formData.append("folder", "monetra/profiles");
     formData.append("signature", signData.signature);
 
     const uploadRes = await fetch(
-      `https://api.cloudinary.com/v1_1/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload`,
+      `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`,
       {
         method: "POST",
         body: formData,
@@ -140,7 +149,9 @@ export default function EditProfilePage() {
     setImagePreview(uploadData.secure_url);
   } catch (error) {
     console.error(error);
-    setError("Could not upload image. Please try again.");
+    setError(error.message || "Could not upload image. Please try again.");
+  } finally {
+    setUploadingImage(false);
   }
 }
   
@@ -151,6 +162,11 @@ export default function EditProfilePage() {
 
     if (!form.name.trim()) {
       setError("Name is required.");
+      return;
+    }
+
+    if (uploadingImage) {
+      setError("Please wait for your profile photo to finish uploading.");
       return;
     }
 
@@ -171,14 +187,20 @@ export default function EditProfilePage() {
       });
       const data = await res.json();
 
-    
-if (data.success) {
-  setSuccess(true);
+      if (data.success) {
+        setSuccess(true);
 
-  await update();
+        await update({
+          name: data.user.name,
+          bio: data.user.bio,
+          country: data.user.country,
+          city: data.user.city,
+          image: data.user.image,
+        });
 
-  router.push("/profile");
-}else {
+        router.push("/profile");
+        router.refresh();
+      } else {
         setError(data.message || "Could not update profile.");
       }
     } catch (err) {
@@ -253,19 +275,38 @@ if (data.success) {
 
               <label
                 htmlFor="profileImageFile"
-                className="flex-1 flex flex-col items-center justify-center gap-1 rounded-2xl border-2 border-dashed border-black bg-slate-50 px-4 py-5 text-center cursor-pointer hover:bg-slate-100 transition-colors shadow-solid-sm"
+                className={`flex-1 flex flex-col items-center justify-center gap-1 rounded-2xl border-2 border-dashed border-black bg-slate-50 px-4 py-5 text-center transition-colors shadow-solid-sm ${
+                  uploadingImage
+                    ? "opacity-60 cursor-not-allowed pointer-events-none"
+                    : "cursor-pointer hover:bg-slate-100"
+                }`}
               >
-                <span className="text-xs sm:text-sm text-slate-950 font-black">
-                  {imageName || "Click to upload a new photo"}
-                </span>
-                <span className="text-xs text-slate-500 font-medium">
-                  PNG or JPG, up to {MAX_IMAGE_SIZE_MB}MB
-                </span>
+                {uploadingImage ? (
+                  <div className="flex items-center gap-2">
+                    <svg className="animate-spin w-4 h-4 text-emerald-600" viewBox="0 0 24 24" fill="none">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
+                    </svg>
+                    <span className="text-xs sm:text-sm text-emerald-700 font-black">
+                      Uploading photo...
+                    </span>
+                  </div>
+                ) : (
+                  <>
+                    <span className="text-xs sm:text-sm text-slate-950 font-black">
+                      {imageName || "Click to upload a new photo"}
+                    </span>
+                    <span className="text-xs text-slate-500 font-medium">
+                      PNG or JPG, up to {MAX_IMAGE_SIZE_MB}MB
+                    </span>
+                  </>
+                )}
                 <input
                   ref={fileInputRef}
                   id="profileImageFile"
                   type="file"
                   accept="image/*"
+                  disabled={uploadingImage}
                   onChange={handleImageChange}
                   className="hidden"
                 />
@@ -387,10 +428,14 @@ if (data.success) {
           <div className="flex flex-col sm:flex-row gap-3 pt-2">
             <button
               type="submit"
-              disabled={saving}
+              disabled={saving || uploadingImage}
               className="flex-1 inline-flex items-center justify-center gap-2 rounded-2xl bg-[#22c55e] hover:bg-[#16a34a] disabled:opacity-60 disabled:cursor-not-allowed transition-all text-slate-950 font-black py-3.5 text-sm border-2 border-black shadow-solid hover:translate-y-0.5 hover:shadow-solid-sm active:translate-y-1 cursor-pointer"
             >
-              {saving ? "Saving..." : "Save Changes ✦"}
+              {saving
+                ? "Saving..."
+                : uploadingImage
+                ? "Uploading Photo..."
+                : "Save Changes ✦"}
             </button>
             <button
               type="button"

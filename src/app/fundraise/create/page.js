@@ -58,15 +58,18 @@ export default function CreateFundraiserPage() {
             throw new Error(signData.error || `Could not sign upload for ${file.name}`);
           }
 
+          const apiKey = signData.apiKey || process.env.NEXT_PUBLIC_CLOUDINARY_API_KEY;
+          const cloudName = signData.cloudName || process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
+
           const formData = new FormData();
           formData.append("file", file);
-          formData.append("api_key", process.env.NEXT_PUBLIC_CLOUDINARY_API_KEY);
+          formData.append("api_key", apiKey);
           formData.append("timestamp", timestamp);
           formData.append("folder", "monetra/documents");
           formData.append("signature", signData.signature);
 
           const uploadRes = await fetch(
-            `https://api.cloudinary.com/v1_1/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/auto/upload`,
+            `https://api.cloudinary.com/v1_1/${cloudName}/auto/upload`,
             { method: "POST", body: formData }
           );
           const uploadData = await uploadRes.json();
@@ -140,15 +143,18 @@ export default function CreateFundraiserPage() {
       const signData = await signRes.json();
       if (!signRes.ok) throw new Error(signData.error || "Could not sign upload");
 
+      const apiKey = signData.apiKey || process.env.NEXT_PUBLIC_CLOUDINARY_API_KEY;
+      const cloudName = signData.cloudName || process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
+
       const formData = new FormData();
       formData.append("file", file);
-      formData.append("api_key", process.env.NEXT_PUBLIC_CLOUDINARY_API_KEY);
+      formData.append("api_key", apiKey);
       formData.append("timestamp", timestamp);
       formData.append("folder", "monetra/fundraisers");
       formData.append("signature", signData.signature);
 
       const uploadRes = await fetch(
-        `https://api.cloudinary.com/v1_1/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload`,
+        `https://api.cloudinary.com/v1_1/${cloudName}/image/upload`,
         { method: "POST", body: formData }
       );
       const uploadData = await uploadRes.json();
