@@ -49,28 +49,21 @@ function CommunityHubInner() {
     messagesEndRef.current?.scrollIntoView({ behavior });
   };
 
-  // Detect if user has scrolled up to show "Slide down" floating button
+  // Detect if user has scrolled up to show the "Down to latest" arrow button
   const handleScroll = () => {
     if (!chatContainerRef.current) return;
     const { scrollTop, scrollHeight, clientHeight } = chatContainerRef.current;
     const distanceToBottom = scrollHeight - (scrollTop + clientHeight);
-    setIsScrolledUp(distanceToBottom > 120);
+    setIsScrolledUp(distanceToBottom > 80);
   };
 
-  // Trigger slide to bottom on message updates, channel changes, and tab switches
+  // Only scroll down when switching channels or opening the tab (never auto-scroll on incoming messages)
   useEffect(() => {
     if (activeTab === "chat") {
-      // Immediate slide
-      slideToBottom("smooth");
-      // Secondary pass to account for image/avatar loading
-      const t1 = setTimeout(() => slideToBottom("smooth"), 100);
-      const t2 = setTimeout(() => slideToBottom("smooth"), 300);
-      return () => {
-        clearTimeout(t1);
-        clearTimeout(t2);
-      };
+      const t = setTimeout(() => slideToBottom("auto"), 150);
+      return () => clearTimeout(t);
     }
-  }, [messages, activeChannel, activeTab]);
+  }, [activeChannel, activeTab]);
 
   // Load conversations list
   const loadConversations = async () => {
@@ -171,7 +164,6 @@ function CommunityHubInner() {
           return [...prev, newMsg];
         });
         loadConversations();
-        slideToBottom("smooth");
       });
     } else {
       fallbackInterval = setInterval(() => {
@@ -722,13 +714,18 @@ function CommunityHubInner() {
               <div ref={messagesEndRef} />
             </div>
 
-            {/* Floating "Slide to Bottom" Button */}
+            {/* Floating Arrow to glide down to latest chat */}
             {isScrolledUp && (
               <button
+                type="button"
                 onClick={() => slideToBottom("smooth")}
-                className="absolute bottom-20 right-6 z-20 inline-flex items-center gap-1.5 bg-[#22c55e] hover:bg-[#16a34a] text-slate-950 border-2 border-black px-4 py-2 rounded-full font-black text-xs shadow-solid animate-bounce cursor-pointer"
+                className="absolute bottom-24 right-6 z-30 inline-flex items-center gap-2 bg-[#e2ff3d] hover:bg-[#d4ff00] text-slate-950 border-2 border-black px-4 py-2.5 rounded-full font-black text-xs shadow-solid hover:translate-y-0.5 transition-all cursor-pointer animate-bounce"
+                title="Get down to keep up with chat"
               >
-                <span>↓ Slide to latest</span>
+                <span className="w-5 h-5 rounded-full bg-slate-950 text-[#e2ff3d] flex items-center justify-center text-xs font-black">
+                  ↓
+                </span>
+                <span>Get to latest chat</span>
               </button>
             )}
 
