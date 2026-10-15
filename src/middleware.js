@@ -2,7 +2,7 @@ import { getToken } from "next-auth/jwt";
 import { NextResponse } from "next/server";
 
 // Routes that require authentication
-const protectedRoutes = [
+const protectedExactRoutes = [
   "/profile",
   "/profile/edit",
   "/fundraise/create",
@@ -18,10 +18,9 @@ const protectedApiRoutes = [
 export async function middleware(request) {
   const { pathname } = request.nextUrl;
 
-  // Check if it's a protected page route
-  const isProtectedPage = protectedRoutes.some(
-    (route) => pathname === route || pathname.startsWith(route + "/")
-  );
+  // Check if it's a protected page route (own profile / edit / create fundraiser)
+  // Public profiles /profile/[id] are open to everyone
+  const isProtectedPage = protectedExactRoutes.includes(pathname);
 
   // Check if it's a protected API route with a mutating method
   const isProtectedApi =
