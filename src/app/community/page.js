@@ -273,18 +273,18 @@ function CommunityHubInner() {
   };
 
   return (
-    <div className="min-h-screen bg-(--app-bg) text-(--app-text) flex flex-col">
+    <div className="h-[calc(100dvh-64px)] sm:h-[calc(100dvh-72px)] -mt-5 sm:-mt-7 bg-(--app-bg) text-(--app-text) flex flex-col overflow-hidden">
       {/* Top Section Nav / Switcher */}
-      <div className="px-4 sm:px-8 py-3 bg-white border-b-3 border-black flex flex-wrap items-center justify-between gap-4 sticky top-0 z-30 shadow-solid-sm">
+      <div className="shrink-0 px-4 sm:px-8 py-2 sm:py-2.5 bg-white border-b-3 border-black flex flex-wrap items-center justify-between gap-3 z-30 shadow-solid-sm">
         <div className="flex items-center gap-3">
-          <span className="w-10 h-10 rounded-2xl border-2 border-black bg-[#22c55e] flex items-center justify-center text-xl shadow-solid-sm">
+          <span className="w-9 h-9 rounded-2xl border-2 border-black bg-[#22c55e] flex items-center justify-center text-lg shadow-solid-sm">
             ✨
           </span>
           <div>
-            <h1 className="font-editorial text-xl sm:text-2xl font-black text-slate-950 leading-tight">
+            <h1 className="font-editorial text-lg sm:text-xl font-black text-slate-950 leading-tight">
               Monetra Community
             </h1>
-            <p className="text-[11px] text-slate-500 font-bold">
+            <p className="text-[10px] text-slate-500 font-bold">
               Connect, debate causes, and celebrate top benefactors
             </p>
           </div>
@@ -294,7 +294,7 @@ function CommunityHubInner() {
         <div className="flex items-center bg-slate-100 p-1 rounded-2xl border-2 border-black shadow-solid-sm">
           <button
             onClick={() => setActiveTab("chat")}
-            className={`px-5 py-2 rounded-xl text-xs font-black transition-all cursor-pointer flex items-center gap-2 ${
+            className={`px-4 sm:px-5 py-1.5 rounded-xl text-xs font-black transition-all cursor-pointer flex items-center gap-2 ${
               activeTab === "chat"
                 ? "bg-[#e2ff3d] text-slate-950 border border-black shadow-solid-sm"
                 : "text-slate-600 hover:text-black"
@@ -306,7 +306,7 @@ function CommunityHubInner() {
           </button>
           <button
             onClick={() => setActiveTab("leaderboard")}
-            className={`px-5 py-2 rounded-xl text-xs font-black transition-all cursor-pointer flex items-center gap-2 ${
+            className={`px-4 sm:px-5 py-1.5 rounded-xl text-xs font-black transition-all cursor-pointer flex items-center gap-2 ${
               activeTab === "leaderboard"
                 ? "bg-[#22c55e] text-slate-950 border border-black shadow-solid-sm"
                 : "text-slate-600 hover:text-black"
@@ -322,7 +322,7 @@ function CommunityHubInner() {
           SECTION 1: COMMUNITY LOUNGE & DIRECT MESSAGES
          ========================================================================= */}
       {activeTab === "chat" ? (
-        <div className="flex-1 flex h-[calc(100vh-130px)] overflow-hidden">
+        <div className="flex-1 min-h-0 flex overflow-hidden">
           {/* Sidebar */}
           <aside
             className={`fixed inset-y-0 left-0 z-40 w-80 bg-white border-r-3 border-black flex flex-col transition-transform duration-300 md:static md:translate-x-0 ${
@@ -520,9 +520,9 @@ function CommunityHubInner() {
           </aside>
 
           {/* Right Main Chat Area */}
-          <section className="flex-1 flex flex-col h-full bg-(--app-bg) overflow-hidden relative">
+          <section className="flex-1 min-h-0 flex flex-col h-full bg-(--app-bg) overflow-hidden relative">
             {/* Chat Area Header */}
-            <div className="p-4 bg-white border-b-3 border-black flex items-center justify-between z-10">
+            <div className="shrink-0 p-3 sm:p-4 bg-white border-b-3 border-black flex items-center justify-between z-10">
               <div className="flex items-center gap-3">
                 <button
                   onClick={() => setMobileSidebarOpen(true)}
@@ -589,11 +589,11 @@ function CommunityHubInner() {
               </div>
             </div>
 
-            {/* Message Stream (With automatic slide-down ref) */}
+            {/* Message Stream */}
             <div
               ref={chatContainerRef}
               onScroll={handleScroll}
-              className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4 scroll-smooth"
+              className="flex-1 min-h-0 overflow-y-auto p-4 sm:p-6 space-y-4 scroll-smooth"
             >
               {loadingMessages ? (
                 <div className="flex items-center justify-center h-full">
@@ -730,7 +730,7 @@ function CommunityHubInner() {
             )}
 
             {/* Chat Input Bar */}
-            <div className="p-3 sm:p-4 bg-white border-t-3 border-black">
+            <div className="shrink-0 p-3 sm:p-4 bg-white border-t-3 border-black sticky bottom-0 z-20">
               {selectedCampaign && (
                 <div className="mb-2 inline-flex items-center gap-2 bg-[#e2ff3d] border-2 border-black rounded-xl px-3 py-1.5 text-xs font-black shadow-solid-sm">
                   <span>📌 Attached: {selectedCampaign.title}</span>
@@ -842,20 +842,22 @@ function CommunityHubInner() {
         /* =========================================================================
             SECTION 2: COMMUNITY LEADERBOARD & DIRECTORY
            ========================================================================= */
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10 w-full">
-          <LeaderboardSection
-            onSelectUserToMessage={(userId) => {
-              setActiveChannel(userId);
-              setActiveTab("chat");
-              // Fetch user info for DM header
-              fetch(`/api/users/${userId}`)
-                .then((r) => r.json())
-                .then((d) => {
-                  if (d.success && d.user) setActivePartner(d.user);
-                })
-                .catch(() => {});
-            }}
-          />
+        <div className="flex-1 min-h-0 overflow-y-auto w-full">
+          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10 w-full">
+            <LeaderboardSection
+              onSelectUserToMessage={(userId) => {
+                setActiveChannel(userId);
+                setActiveTab("chat");
+                // Fetch user info for DM header
+                fetch(`/api/users/${userId}`)
+                  .then((r) => r.json())
+                  .then((d) => {
+                    if (d.success && d.user) setActivePartner(d.user);
+                  })
+                  .catch(() => {});
+              }}
+            />
+          </div>
         </div>
       )}
     </div>

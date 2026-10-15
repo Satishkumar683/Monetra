@@ -285,9 +285,9 @@ export default function Home() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {topDonors.map((donor) => (
+              {topDonors.map((donor, idx) => (
                 <div
-                  key={donor.donorId}
+                  key={donor.id || donor.donorId || idx}
                   className="rounded-3xl border-2 border-black bg-slate-50 p-6 flex flex-col justify-between shadow-solid hover:-translate-y-1 transition-transform"
                 >
                   <div className="flex items-center gap-4">
@@ -298,15 +298,15 @@ export default function Home() {
                         className="w-14 h-14 rounded-full border-2 border-black object-cover shadow-solid-sm"
                       />
                       <span className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-white border border-black flex items-center justify-center text-xs shadow-solid-sm font-black">
-                        #{donor.rank}
+                        #{donor.rank || idx + 1}
                       </span>
                     </div>
                     <div>
                       <h4 className="font-editorial text-lg font-black text-slate-950 truncate max-w-[160px]">
                         {donor.user?.name || "Anonymous Supporter"}
                       </h4>
-                      <span className={`inline-block mt-0.5 text-[10px] font-black px-2 py-0.5 rounded-full border ${donor.badgeStyle}`}>
-                        {donor.tierBadge} {donor.tier}
+                      <span className={`inline-block mt-0.5 text-[10px] font-black px-2 py-0.5 rounded-full border ${donor.badgeStyle || "border-black bg-slate-100"}`}>
+                        {donor.tierBadge || "🌱"} {donor.tier || "Supporter"}
                       </span>
                     </div>
                   </div>
@@ -315,11 +315,11 @@ export default function Home() {
                     <div>
                       <span className="text-[10px] uppercase font-black text-slate-400">Total Donated</span>
                       <p className="font-editorial text-xl font-black text-emerald-700">
-                        ₹{donor.totalDonated.toLocaleString()}
+                        ₹{(donor.totalDonated ?? donor.totalAmount ?? 0).toLocaleString()}
                       </p>
                     </div>
                     <span className="text-xs font-bold text-slate-500">
-                      {donor.causesCount} causes helped
+                      {donor.causesCount || donor.actionCount || 0} causes helped
                     </span>
                   </div>
                 </div>

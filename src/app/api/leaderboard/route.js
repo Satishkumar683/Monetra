@@ -183,8 +183,11 @@ export async function GET(req) {
         return {
           rank,
           id: item._id,
+          donorId: item._id,
           user: item.user,
           totalAmount: item.totalDonated,
+          totalDonated: item.totalDonated,
+          causesCount: item.causesCount,
           actionCount: item.causesCount,
           actionLabel: "causes helped",
           donationCount: item.donationCount,
