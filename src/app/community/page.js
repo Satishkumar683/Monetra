@@ -275,45 +275,47 @@ function CommunityHubInner() {
   return (
     <div className="h-[calc(100dvh-64px)] sm:h-[calc(100dvh-72px)] -mt-5 sm:-mt-7 bg-(--app-bg) text-(--app-text) flex flex-col overflow-hidden">
       {/* Top Section Nav / Switcher */}
-      <div className="shrink-0 px-4 sm:px-8 py-2 sm:py-2.5 bg-white border-b-3 border-black flex flex-wrap items-center justify-between gap-3 z-30 shadow-solid-sm">
-        <div className="flex items-center gap-3">
-          <span className="w-9 h-9 rounded-2xl border-2 border-black bg-[#22c55e] flex items-center justify-center text-lg shadow-solid-sm">
+      <div className="shrink-0 px-3 sm:px-8 py-2 sm:py-2.5 bg-white border-b-2 sm:border-b-3 border-black flex items-center justify-between gap-2 z-30 shadow-solid-sm">
+        <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+          <span className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl sm:rounded-2xl border-2 border-black bg-[#22c55e] flex items-center justify-center text-base sm:text-lg shadow-solid-sm shrink-0">
             ✨
           </span>
           <div>
-            <h1 className="font-editorial text-lg sm:text-xl font-black text-slate-950 leading-tight">
-              Monetra Community
+            <h1 className="font-editorial text-sm sm:text-xl font-black text-slate-950 leading-tight">
+              Community
             </h1>
-            <p className="text-[10px] text-slate-500 font-bold">
+            <p className="text-[10px] text-slate-500 font-bold hidden sm:block">
               Connect, debate causes, and celebrate top benefactors
             </p>
           </div>
         </div>
 
         {/* Section Pill Switcher */}
-        <div className="flex items-center bg-slate-100 p-1 rounded-2xl border-2 border-black shadow-solid-sm">
+        <div className="flex items-center bg-slate-100 p-0.5 sm:p-1 rounded-xl sm:rounded-2xl border-2 border-black shadow-solid-sm">
           <button
             onClick={() => setActiveTab("chat")}
-            className={`px-4 sm:px-5 py-1.5 rounded-xl text-xs font-black transition-all cursor-pointer flex items-center gap-2 ${
+            className={`px-3 sm:px-5 py-1 sm:py-1.5 rounded-lg sm:rounded-xl text-[11px] sm:text-xs font-black transition-all cursor-pointer flex items-center gap-1.5 ${
               activeTab === "chat"
                 ? "bg-[#e2ff3d] text-slate-950 border border-black shadow-solid-sm"
                 : "text-slate-600 hover:text-black"
             }`}
           >
             <span>💬</span>
-            <span>Live Lounge & DMs</span>
-            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse border border-black" />
+            <span className="sm:hidden">Chat</span>
+            <span className="hidden sm:inline">Live Lounge & DMs</span>
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse border border-black" />
           </button>
           <button
             onClick={() => setActiveTab("leaderboard")}
-            className={`px-4 sm:px-5 py-1.5 rounded-xl text-xs font-black transition-all cursor-pointer flex items-center gap-2 ${
+            className={`px-3 sm:px-5 py-1 sm:py-1.5 rounded-lg sm:rounded-xl text-[11px] sm:text-xs font-black transition-all cursor-pointer flex items-center gap-1.5 ${
               activeTab === "leaderboard"
                 ? "bg-[#22c55e] text-slate-950 border border-black shadow-solid-sm"
                 : "text-slate-600 hover:text-black"
             }`}
           >
             <span>🏆</span>
-            <span>Hall of Fame & Leaderboard</span>
+            <span className="sm:hidden">Rankings</span>
+            <span className="hidden sm:inline">Hall of Fame</span>
           </button>
         </div>
       </div>
@@ -322,31 +324,39 @@ function CommunityHubInner() {
           SECTION 1: COMMUNITY LOUNGE & DIRECT MESSAGES
          ========================================================================= */}
       {activeTab === "chat" ? (
-        <div className="flex-1 min-h-0 flex overflow-hidden">
+        <div className="flex-1 min-h-0 flex overflow-hidden relative">
+          {/* Mobile Backdrop Overlay */}
+          {mobileSidebarOpen && (
+            <div
+              onClick={() => setMobileSidebarOpen(false)}
+              className="fixed inset-0 bg-black/60 z-40 md:hidden backdrop-blur-xs transition-opacity"
+            />
+          )}
+
           {/* Sidebar */}
           <aside
-            className={`fixed inset-y-0 left-0 z-40 w-80 bg-white border-r-3 border-black flex flex-col transition-transform duration-300 md:static md:translate-x-0 ${
+            className={`fixed inset-y-0 left-0 z-50 w-72 sm:w-80 bg-white border-r-3 border-black flex flex-col transition-transform duration-300 md:static md:translate-x-0 ${
               mobileSidebarOpen ? "translate-x-0 shadow-2xl" : "-translate-x-full"
             }`}
           >
             {/* Sidebar Header */}
-            <div className="p-4 border-b-2 border-black flex items-center justify-between bg-slate-50">
+            <div className="p-3 sm:p-4 border-b-2 border-black flex items-center justify-between bg-slate-50">
               <div className="flex items-center gap-2">
                 <span className="w-8 h-8 rounded-xl border-2 border-black bg-[#e2ff3d] flex items-center justify-center font-black shadow-solid-sm text-sm">
                   💬
                 </span>
                 <div>
-                  <h2 className="font-editorial text-base font-black text-slate-950 leading-tight">
+                  <h2 className="font-editorial text-sm sm:text-base font-black text-slate-950 leading-tight">
                     Chat Channels
                   </h2>
-                  <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">
+                  <p className="text-[9px] sm:text-[10px] text-slate-500 font-bold uppercase tracking-wider">
                     Community Discourse
                   </p>
                 </div>
               </div>
               <button
                 onClick={() => setMobileSidebarOpen(false)}
-                className="md:hidden p-1.5 rounded-lg border-2 border-black hover:bg-slate-200"
+                className="md:hidden p-1.5 rounded-lg border-2 border-black hover:bg-slate-200 cursor-pointer"
               >
                 ✕
               </button>
@@ -522,54 +532,55 @@ function CommunityHubInner() {
           {/* Right Main Chat Area */}
           <section className="flex-1 min-h-0 flex flex-col h-full bg-(--app-bg) overflow-hidden relative">
             {/* Chat Area Header */}
-            <div className="shrink-0 p-3 sm:p-4 bg-white border-b-3 border-black flex items-center justify-between z-10">
-              <div className="flex items-center gap-3">
+            <div className="shrink-0 px-3 py-2 sm:p-4 bg-white border-b-2 sm:border-b-3 border-black flex items-center justify-between z-10 gap-2">
+              <div className="flex items-center gap-2 sm:gap-3 min-w-0">
                 <button
                   onClick={() => setMobileSidebarOpen(true)}
-                  className="md:hidden p-2 rounded-xl border-2 border-black hover:bg-slate-100 font-black text-xs"
+                  className="md:hidden px-2.5 py-1.5 rounded-xl border-2 border-black hover:bg-slate-100 font-black text-xs shrink-0 flex items-center gap-1 bg-white shadow-solid-sm cursor-pointer"
                 >
-                  ☰ Channels
+                  <span>☰</span>
+                  <span className="text-[10px]">Chats</span>
                 </button>
 
                 {activeChannel === "global" ? (
-                  <div className="flex items-center gap-3">
-                    <span className="w-10 h-10 rounded-2xl border-2 border-black bg-[#22c55e] flex items-center justify-center text-xl shadow-solid-sm">
+                  <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+                    <span className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl sm:rounded-2xl border-2 border-black bg-[#22c55e] flex items-center justify-center text-base sm:text-xl shadow-solid-sm shrink-0">
                       🌍
                     </span>
-                    <div>
-                      <h2 className="font-editorial text-base sm:text-lg font-black text-slate-950 flex items-center gap-2">
-                        # The Monetra Lounge
-                        <span className="text-[10px] bg-slate-100 border border-black px-2 py-0.5 rounded-full font-black text-slate-700">
+                    <div className="min-w-0">
+                      <h2 className="font-editorial text-sm sm:text-lg font-black text-slate-950 flex items-center gap-1.5 truncate">
+                        <span>#monetra-lounge</span>
+                        <span className="text-[9px] bg-slate-100 border border-black px-1.5 py-0.2 rounded-full font-black text-slate-700 shrink-0">
                           Public
                         </span>
                       </h2>
-                      <p className="text-xs text-slate-500 font-medium">
+                      <p className="text-[10px] text-slate-500 font-medium truncate hidden sm:block">
                         Open discussion on active causes, donor appreciation, and community stories.
                       </p>
                     </div>
                   </div>
                 ) : (
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-2 sm:gap-3 min-w-0">
                     <img
                       src={activePartner?.image || "/default-avatar.png"}
                       alt={activePartner?.name || "User"}
-                      className="w-10 h-10 rounded-full border-2 border-black object-cover shadow-solid-sm"
+                      className="w-8 h-8 sm:w-10 sm:h-10 rounded-full border-2 border-black object-cover shadow-solid-sm shrink-0"
                     />
-                    <div>
-                      <h2 className="font-editorial text-base sm:text-lg font-black text-slate-950 flex items-center gap-2">
-                        {activePartner?.name || "Direct Message"}
+                    <div className="min-w-0">
+                      <h2 className="font-editorial text-sm sm:text-lg font-black text-slate-950 flex items-center gap-1.5 truncate">
+                        <span className="truncate">{activePartner?.name || "Direct Message"}</span>
                         {activePartner?.isVerified && (
-                          <span className="text-[10px] bg-[#22c55e] border border-black px-2 py-0.5 rounded-full font-black text-slate-950">
-                            ✓ Verified
+                          <span className="text-[9px] bg-[#22c55e] border border-black px-1.5 py-0.2 rounded-full font-black text-slate-950 shrink-0">
+                            ✓
                           </span>
                         )}
                       </h2>
                       {activePartner?._id && (
                         <Link
                           href={`/profile/${activePartner._id}`}
-                          className="text-xs text-emerald-700 font-bold hover:underline"
+                          className="text-[10px] text-emerald-700 font-bold hover:underline truncate block"
                         >
-                          View Profile & Backed Causes →
+                          View Profile →
                         </Link>
                       )}
                     </div>
@@ -577,13 +588,13 @@ function CommunityHubInner() {
                 )}
               </div>
 
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 shrink-0">
                 <button
                   onClick={() => slideToBottom("smooth")}
-                  className="text-xs font-black bg-white hover:bg-slate-100 px-3 py-1.5 rounded-xl border-2 border-black shadow-solid-sm transition-all cursor-pointer flex items-center gap-1"
-                  title="Slide down to newest messages"
+                  className="text-xs font-black bg-white hover:bg-slate-100 px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-xl border border-black shadow-solid-sm transition-all cursor-pointer flex items-center gap-1"
+                  title="Scroll to latest"
                 >
-                  <span>↓</span>
+                  <span className="text-xs font-black">↓</span>
                   <span className="hidden sm:inline">Latest</span>
                 </button>
               </div>
@@ -593,7 +604,7 @@ function CommunityHubInner() {
             <div
               ref={chatContainerRef}
               onScroll={handleScroll}
-              className="flex-1 min-h-0 overflow-y-auto p-4 sm:p-6 space-y-4 scroll-smooth"
+              className="flex-1 min-h-0 overflow-y-auto p-3 sm:p-6 space-y-3 sm:space-y-4 scroll-smooth"
             >
               {loadingMessages ? (
                 <div className="flex items-center justify-center h-full">
@@ -608,9 +619,9 @@ function CommunityHubInner() {
                   </div>
                 </div>
               ) : messages.length === 0 ? (
-                <div className="flex flex-col items-center justify-center h-full text-center max-w-sm mx-auto">
-                  <span className="text-4xl mb-3">💬</span>
-                  <h3 className="font-editorial text-xl font-black text-slate-950">
+                <div className="flex flex-col items-center justify-center h-full text-center max-w-sm mx-auto px-4">
+                  <span className="text-3xl sm:text-4xl mb-2 sm:mb-3">💬</span>
+                  <h3 className="font-editorial text-lg sm:text-xl font-black text-slate-950">
                     {activeChannel === "global" ? "Welcome to The Lounge!" : "No messages yet"}
                   </h3>
                   <p className="text-xs text-slate-500 font-medium mt-1">
@@ -630,7 +641,7 @@ function CommunityHubInner() {
                   return (
                     <div
                       key={msg._id}
-                      className={`flex gap-3 max-w-2xl ${
+                      className={`flex gap-2 sm:gap-3 max-w-[90%] sm:max-w-2xl ${
                         isOwnMessage ? "ml-auto flex-row-reverse" : "mr-auto"
                       }`}
                     >
@@ -641,24 +652,24 @@ function CommunityHubInner() {
                         <img
                           src={msg.sender?.image || "/default-avatar.png"}
                           alt={msg.sender?.name || "User"}
-                          className="w-9 h-9 rounded-full border-2 border-black object-cover shadow-solid-sm"
+                          className="w-7 h-7 sm:w-9 sm:h-9 rounded-full border-2 border-black object-cover shadow-solid-sm"
                         />
                       </Link>
 
-                      <div className={`space-y-1 ${isOwnMessage ? "items-end" : "items-start"}`}>
-                        <div className={`flex items-center gap-2 ${isOwnMessage ? "justify-end" : "justify-start"}`}>
+                      <div className={`space-y-1 min-w-0 ${isOwnMessage ? "items-end" : "items-start"}`}>
+                        <div className={`flex items-center gap-1.5 sm:gap-2 flex-wrap ${isOwnMessage ? "justify-end" : "justify-start"}`}>
                           <Link
                             href={`/profile/${senderId}`}
-                            className="text-xs font-black text-slate-950 hover:underline"
+                            className="text-[11px] sm:text-xs font-black text-slate-950 hover:underline truncate max-w-[130px] sm:max-w-none"
                           >
                             {msg.sender?.name || "Member"}
                           </Link>
                           {msg.sender?.role === "admin" && (
-                            <span className="text-[9px] font-black bg-amber-400 text-slate-950 border border-black px-1.5 py-0.2 rounded-full">
+                            <span className="text-[8px] sm:text-[9px] font-black bg-amber-400 text-slate-950 border border-black px-1.5 py-0.2 rounded-full">
                               ADMIN
                             </span>
                           )}
-                          <span className="text-[10px] text-slate-400 font-medium">
+                          <span className="text-[9px] sm:text-[10px] text-slate-400 font-medium">
                             {new Date(msg.createdAt).toLocaleTimeString([], {
                               hour: "2-digit",
                               minute: "2-digit",
@@ -667,7 +678,7 @@ function CommunityHubInner() {
                         </div>
 
                         <div
-                          className={`p-3.5 rounded-2xl border-2 border-black shadow-solid-sm text-sm font-medium leading-relaxed ${
+                          className={`p-2.5 sm:p-3.5 rounded-2xl border-2 border-black shadow-solid-sm text-xs sm:text-sm font-medium leading-relaxed ${
                             isOwnMessage
                               ? "bg-[#e2ff3d] text-slate-950 rounded-tr-none"
                               : "bg-white text-slate-900 rounded-tl-none"
@@ -676,30 +687,30 @@ function CommunityHubInner() {
                           <p className="whitespace-pre-wrap break-words">{msg.text}</p>
 
                           {msg.campaignRef && (
-                            <div className="mt-3 p-3 bg-white text-slate-950 rounded-xl border-2 border-black shadow-solid-sm">
-                              <div className="flex gap-3 items-center">
+                            <div className="mt-2.5 p-2 sm:p-3 bg-white text-slate-950 rounded-xl border-2 border-black shadow-solid-sm">
+                              <div className="flex gap-2.5 items-center">
                                 {msg.campaignRef.coverImage && (
                                   <img
                                     src={msg.campaignRef.coverImage}
                                     alt={msg.campaignRef.title}
-                                    className="w-14 h-14 rounded-lg border border-black object-cover shrink-0"
+                                    className="w-11 h-11 sm:w-14 sm:h-14 rounded-lg border border-black object-cover shrink-0"
                                   />
                                 )}
                                 <div className="flex-1 min-w-0">
-                                  <span className="text-[9px] font-black uppercase px-2 py-0.5 rounded-full bg-slate-100 border border-black">
+                                  <span className="text-[8px] sm:text-[9px] font-black uppercase px-1.5 py-0.5 rounded-full bg-slate-100 border border-black">
                                     {msg.campaignRef.category}
                                   </span>
-                                  <h4 className="font-editorial text-xs font-black truncate mt-1">
+                                  <h4 className="font-editorial text-[11px] sm:text-xs font-black truncate mt-0.5">
                                     {msg.campaignRef.title}
                                   </h4>
-                                  <p className="text-[10px] text-emerald-700 font-black mt-0.5">
-                                    ₹{(msg.campaignRef.currentAmount || 0).toLocaleString()} raised of ₹{(msg.campaignRef.targetAmount || 0).toLocaleString()}
+                                  <p className="text-[9px] sm:text-[10px] text-emerald-700 font-black mt-0.5">
+                                    ₹{(msg.campaignRef.currentAmount || 0).toLocaleString()} raised
                                   </p>
                                 </div>
                               </div>
                               <Link
                                 href={`/fundraiser/${msg.campaignRef._id}`}
-                                className="mt-2 block text-center rounded-lg bg-slate-950 text-white hover:bg-slate-800 text-[11px] font-black py-1.5 border border-black transition-all"
+                                className="mt-2 block text-center rounded-lg bg-slate-950 text-white hover:bg-slate-800 text-[10px] sm:text-[11px] font-black py-1.5 border border-black transition-all"
                               >
                                 View Cause →
                               </Link>
@@ -719,24 +730,24 @@ function CommunityHubInner() {
               <button
                 type="button"
                 onClick={() => slideToBottom("smooth")}
-                className="absolute bottom-24 right-6 z-30 inline-flex items-center gap-2 bg-[#e2ff3d] hover:bg-[#d4ff00] text-slate-950 border-2 border-black px-4 py-2.5 rounded-full font-black text-xs shadow-solid hover:translate-y-0.5 transition-all cursor-pointer animate-bounce"
+                className="absolute bottom-20 sm:bottom-24 right-3 sm:right-6 z-30 inline-flex items-center gap-1.5 sm:gap-2 bg-[#e2ff3d] hover:bg-[#d4ff00] text-slate-950 border-2 border-black px-3 py-1.5 sm:px-4 sm:py-2 rounded-full font-black text-[11px] sm:text-xs shadow-solid hover:translate-y-0.5 transition-all cursor-pointer animate-bounce"
                 title="Get down to keep up with chat"
               >
-                <span className="w-5 h-5 rounded-full bg-slate-950 text-[#e2ff3d] flex items-center justify-center text-xs font-black">
+                <span className="w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-slate-950 text-[#e2ff3d] flex items-center justify-center text-[10px] sm:text-xs font-black">
                   ↓
                 </span>
-                <span>Get to latest chat</span>
+                <span>Latest chat</span>
               </button>
             )}
 
             {/* Chat Input Bar */}
-            <div className="shrink-0 p-3 sm:p-4 bg-white border-t-3 border-black sticky bottom-0 z-20">
+            <div className="shrink-0 p-2 sm:p-4 bg-white border-t-2 sm:border-t-3 border-black sticky bottom-0 z-20 pb-[max(0.5rem,env(safe-area-inset-bottom))]">
               {selectedCampaign && (
-                <div className="mb-2 inline-flex items-center gap-2 bg-[#e2ff3d] border-2 border-black rounded-xl px-3 py-1.5 text-xs font-black shadow-solid-sm">
-                  <span>📌 Attached: {selectedCampaign.title}</span>
+                <div className="mb-1.5 inline-flex items-center gap-1.5 bg-[#e2ff3d] border-2 border-black rounded-xl px-2.5 py-1 text-[11px] sm:text-xs font-black shadow-solid-sm max-w-full truncate">
+                  <span className="truncate">📌 {selectedCampaign.title}</span>
                   <button
                     onClick={() => setSelectedCampaign(null)}
-                    className="hover:text-red-600 font-black ml-1 cursor-pointer"
+                    className="hover:text-red-600 font-black ml-1 cursor-pointer shrink-0"
                   >
                     ✕
                   </button>
@@ -744,9 +755,9 @@ function CommunityHubInner() {
               )}
 
               {showAttachCampaign && (
-                <div className="mb-3 p-3 bg-slate-50 border-2 border-black rounded-2xl shadow-solid-sm max-h-48 overflow-y-auto">
+                <div className="mb-2 p-2.5 sm:p-3 bg-slate-50 border-2 border-black rounded-2xl shadow-solid-sm max-h-48 overflow-y-auto">
                   <div className="flex justify-between items-center mb-2">
-                    <span className="text-xs font-black text-slate-950 uppercase tracking-wider">
+                    <span className="text-[11px] sm:text-xs font-black text-slate-950 uppercase tracking-wider">
                       Attach a Campaign:
                     </span>
                     <button
@@ -775,7 +786,7 @@ function CommunityHubInner() {
                           <img
                             src={f.coverImage || "/placeholder-cause.jpg"}
                             alt={f.title}
-                            className="w-8 h-8 rounded-lg border border-black object-cover"
+                            className="w-8 h-8 rounded-lg border border-black object-cover shrink-0"
                           />
                           <div className="truncate">
                             <p className="text-xs font-black truncate text-slate-950">{f.title}</p>
@@ -791,21 +802,21 @@ function CommunityHubInner() {
               )}
 
               {status !== "authenticated" ? (
-                <div className="flex items-center justify-between p-3 rounded-2xl bg-slate-100 border-2 border-black text-xs font-bold text-slate-700">
-                  <span>Sign in to participate in the Monetra Community Lounge.</span>
+                <div className="flex items-center justify-between p-2.5 sm:p-3 rounded-xl sm:rounded-2xl bg-slate-100 border-2 border-black text-xs font-bold text-slate-700 gap-2">
+                  <span className="truncate">Sign in to participate in the Lounge.</span>
                   <button
                     onClick={() => router.push("/login")}
-                    className="rounded-xl bg-[#22c55e] text-slate-950 font-black px-4 py-2 border-2 border-black shadow-solid-sm cursor-pointer hover:bg-[#16a34a]"
+                    className="rounded-xl bg-[#22c55e] text-slate-950 font-black px-3.5 py-1.5 sm:px-4 sm:py-2 border-2 border-black shadow-solid-sm cursor-pointer hover:bg-[#16a34a] text-xs shrink-0"
                   >
                     Sign In
                   </button>
                 </div>
               ) : (
-                <form onSubmit={handleSendMessage} className="flex items-center gap-2">
+                <form onSubmit={handleSendMessage} className="flex items-center gap-1.5 sm:gap-2">
                   <button
                     type="button"
                     onClick={() => setShowAttachCampaign(!showAttachCampaign)}
-                    className={`p-3 rounded-2xl border-2 border-black transition-all cursor-pointer shadow-solid-sm hover:translate-y-0.5 ${
+                    className={`p-2 sm:p-3 rounded-xl sm:rounded-2xl border-2 border-black transition-all cursor-pointer shadow-solid-sm hover:translate-y-0.5 text-xs sm:text-sm shrink-0 ${
                       showAttachCampaign ? "bg-[#e2ff3d]" : "bg-slate-100 hover:bg-slate-200"
                     }`}
                     title="Attach a campaign"
@@ -822,16 +833,16 @@ function CommunityHubInner() {
                         ? "Message #monetra-lounge..."
                         : `Message ${activePartner?.name || "user"}...`
                     }
-                    className="flex-1 bg-slate-50 border-2 border-black rounded-2xl px-4 py-3 text-sm font-bold text-slate-950 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#22c55e]"
+                    className="flex-1 min-w-0 bg-slate-50 border-2 border-black rounded-xl sm:rounded-2xl px-3 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-bold text-slate-950 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-[#22c55e]"
                   />
 
                   <button
                     type="submit"
                     disabled={sending || (!inputText.trim() && !selectedCampaign)}
-                    className="rounded-2xl bg-[#22c55e] hover:bg-[#16a34a] disabled:opacity-50 text-slate-950 font-black px-6 py-3 border-2 border-black shadow-solid hover:translate-y-0.5 transition-all cursor-pointer flex items-center gap-1.5 shrink-0 text-sm"
+                    className="rounded-xl sm:rounded-2xl bg-[#22c55e] hover:bg-[#16a34a] disabled:opacity-50 text-slate-950 font-black px-3.5 sm:px-6 py-2 sm:py-3 border-2 border-black shadow-solid-sm sm:shadow-solid hover:translate-y-0.5 transition-all cursor-pointer flex items-center gap-1 shrink-0 text-xs sm:text-sm"
                   >
                     <span>Send</span>
-                    <span>↵</span>
+                    <span className="hidden sm:inline">↵</span>
                   </button>
                 </form>
               )}
@@ -841,9 +852,9 @@ function CommunityHubInner() {
       ) : (
         /* =========================================================================
             SECTION 2: COMMUNITY LEADERBOARD & DIRECTORY
-           ========================================================================= */
+         ========================================================================= */
         <div className="flex-1 min-h-0 overflow-y-auto w-full">
-          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10 w-full">
+          <div className="max-w-6xl mx-auto px-3 sm:px-6 lg:px-8 py-5 sm:py-10 w-full">
             <LeaderboardSection
               onSelectUserToMessage={(userId) => {
                 setActiveChannel(userId);
