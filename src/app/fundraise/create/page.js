@@ -4,7 +4,13 @@
 import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
-import { CATEGORIES, DOCUMENT_TYPES, MAX_IMAGE_SIZE_MB } from "@/lib/constants";
+import {
+  CATEGORIES,
+  DOCUMENT_TYPES,
+  MAX_IMAGE_SIZE_MB,
+  DEFAULT_CLOUDINARY_CLOUD_NAME,
+  DEFAULT_CLOUDINARY_API_KEY,
+} from "@/lib/constants";
 
 export default function CreateFundraiserPage() {
   const { data: session, status } = useSession();
@@ -58,8 +64,14 @@ export default function CreateFundraiserPage() {
             throw new Error(signData.error || `Could not sign upload for ${file.name}`);
           }
 
-          const apiKey = signData.apiKey || process.env.NEXT_PUBLIC_CLOUDINARY_API_KEY;
-          const cloudName = signData.cloudName || process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
+          const apiKey =
+            signData.apiKey ||
+            process.env.NEXT_PUBLIC_CLOUDINARY_API_KEY ||
+            DEFAULT_CLOUDINARY_API_KEY;
+          const cloudName =
+            signData.cloudName ||
+            process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME ||
+            DEFAULT_CLOUDINARY_CLOUD_NAME;
 
           const formData = new FormData();
           formData.append("file", file);
@@ -143,8 +155,14 @@ export default function CreateFundraiserPage() {
       const signData = await signRes.json();
       if (!signRes.ok) throw new Error(signData.error || "Could not sign upload");
 
-      const apiKey = signData.apiKey || process.env.NEXT_PUBLIC_CLOUDINARY_API_KEY;
-      const cloudName = signData.cloudName || process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
+      const apiKey =
+        signData.apiKey ||
+        process.env.NEXT_PUBLIC_CLOUDINARY_API_KEY ||
+        DEFAULT_CLOUDINARY_API_KEY;
+      const cloudName =
+        signData.cloudName ||
+        process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME ||
+        DEFAULT_CLOUDINARY_CLOUD_NAME;
 
       const formData = new FormData();
       formData.append("file", file);

@@ -1,13 +1,21 @@
 import { v2 as cloudinary } from "cloudinary";
 import { cloudinarySignSchema, validateBody } from "@/lib/validations";
 
+import { DEFAULT_CLOUDINARY_CLOUD_NAME, DEFAULT_CLOUDINARY_API_KEY } from "@/lib/constants";
+
+const cloudName =
+  process.env.CLOUDINARY_CLOUD_NAME ||
+  process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME ||
+  DEFAULT_CLOUDINARY_CLOUD_NAME;
+
+const apiKey =
+  process.env.CLOUDINARY_API_KEY ||
+  process.env.NEXT_PUBLIC_CLOUDINARY_API_KEY ||
+  DEFAULT_CLOUDINARY_API_KEY;
+
 cloudinary.config({
-  cloud_name:
-    process.env.CLOUDINARY_CLOUD_NAME ||
-    process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
-  api_key:
-    process.env.CLOUDINARY_API_KEY ||
-    process.env.NEXT_PUBLIC_CLOUDINARY_API_KEY,
+  cloud_name: cloudName,
+  api_key: apiKey,
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
@@ -30,12 +38,8 @@ export async function POST(req) {
 
     return Response.json({
       signature,
-      apiKey:
-        process.env.CLOUDINARY_API_KEY ||
-        process.env.NEXT_PUBLIC_CLOUDINARY_API_KEY,
-      cloudName:
-        process.env.CLOUDINARY_CLOUD_NAME ||
-        process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
+      apiKey,
+      cloudName,
     });
   } catch (error) {
     console.error("Cloudinary signing error:", error);

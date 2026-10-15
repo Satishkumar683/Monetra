@@ -4,7 +4,11 @@ import { useEffect, useRef, useState } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { Country, City } from "country-state-city";
-import { MAX_IMAGE_SIZE_MB } from "@/lib/constants";
+import {
+  MAX_IMAGE_SIZE_MB,
+  DEFAULT_CLOUDINARY_CLOUD_NAME,
+  DEFAULT_CLOUDINARY_API_KEY,
+} from "@/lib/constants";
 
 export default function EditProfilePage() {
   const { data: session, status, update } = useSession();
@@ -115,9 +119,13 @@ export default function EditProfilePage() {
     }
 
     const apiKey =
-      signData.apiKey || process.env.NEXT_PUBLIC_CLOUDINARY_API_KEY;
+      signData.apiKey ||
+      process.env.NEXT_PUBLIC_CLOUDINARY_API_KEY ||
+      DEFAULT_CLOUDINARY_API_KEY;
     const cloudName =
-      signData.cloudName || process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
+      signData.cloudName ||
+      process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME ||
+      DEFAULT_CLOUDINARY_CLOUD_NAME;
 
     if (!apiKey || !cloudName) {
       throw new Error("Cloudinary configuration missing. Please check your settings.");
