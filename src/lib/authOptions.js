@@ -9,6 +9,15 @@ if (process.env.NODE_ENV === "development") {
   if (!process.env.NEXTAUTH_URL || process.env.NEXTAUTH_URL.includes("vercel.app")) {
     process.env.NEXTAUTH_URL = "http://localhost:3000";
   }
+} else {
+  // In production (Vercel), ensure NEXTAUTH_URL doesn't accidentally point to localhost
+  if (!process.env.NEXTAUTH_URL || process.env.NEXTAUTH_URL.includes("localhost")) {
+    if (process.env.VERCEL_URL) {
+      process.env.NEXTAUTH_URL = `https://${process.env.VERCEL_URL}`;
+    } else {
+      process.env.NEXTAUTH_URL = "https://monetra-rho.vercel.app";
+    }
+  }
 }
 
 export const authOptions = {
