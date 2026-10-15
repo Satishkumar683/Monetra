@@ -16,6 +16,8 @@
     "next": "^15.5.4",
     "next-auth": "^4.24.14",
     "next-cloudinary": "^6.18.8",
+    "pusher": "^5.3.4",
+    "pusher-js": "^8.6.0",
     "razorpay": "^2.9.6",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",

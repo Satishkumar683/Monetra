@@ -61,6 +61,13 @@ export default function Navbar() {
             <span>Leaderboard</span>
           </Link>
           <Link
+            href="/community/chat"
+            className="text-xs font-extrabold text-slate-900 hover:text-emerald-600 transition-colors tracking-tight flex items-center gap-1"
+          >
+            <span>💬</span>
+            <span>Community</span>
+          </Link>
+          <Link
             href="/fundraise"
             className="text-xs font-extrabold text-slate-900 hover:text-emerald-600 transition-colors tracking-tight"
           >
@@ -149,6 +156,13 @@ export default function Navbar() {
                     <span>👤</span> My Profile & Donations
                   </Link>
                   <Link
+                    href="/community/chat"
+                    onClick={() => setUserMenuOpen(false)}
+                    className="flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-bold text-slate-800 hover:bg-slate-100 transition-colors"
+                  >
+                    <span>💬</span> Community & Chat
+                  </Link>
+                  <Link
                     href="/fundraise/create"
                     onClick={() => setUserMenuOpen(false)}
                     className="flex items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-bold text-slate-800 hover:bg-slate-100 transition-colors"
@@ -214,6 +228,14 @@ export default function Navbar() {
           >
             <span>🏆</span>
             <span>Leaderboard</span>
+          </Link>
+          <Link
+            href="/community/chat"
+            onClick={() => setMobileMenuOpen(false)}
+            className="block text-sm font-black py-2 px-3 rounded-xl hover:bg-slate-100 flex items-center gap-2"
+          >
+            <span>💬</span>
+            <span>Community & Chat</span>
           </Link>
           <Link
             href="/fundraise"
