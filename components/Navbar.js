@@ -54,6 +54,13 @@ export default function Navbar() {
             Explore Causes
           </Link>
           <Link
+            href="/leaderboard"
+            className="text-xs font-extrabold text-slate-900 hover:text-emerald-600 transition-colors tracking-tight flex items-center gap-1"
+          >
+            <span>🏆</span>
+            <span>Leaderboard</span>
+          </Link>
+          <Link
             href="/fundraise"
             className="text-xs font-extrabold text-slate-900 hover:text-emerald-600 transition-colors tracking-tight"
           >
@@ -199,6 +206,14 @@ export default function Navbar() {
             className="block text-sm font-black py-2 px-3 rounded-xl hover:bg-slate-100"
           >
             Explore Causes
+          </Link>
+          <Link
+            href="/leaderboard"
+            onClick={() => setMobileMenuOpen(false)}
+            className="block text-sm font-black py-2 px-3 rounded-xl hover:bg-slate-100 flex items-center gap-2"
+          >
+            <span>🏆</span>
+            <span>Leaderboard</span>
           </Link>
           <Link
             href="/fundraise"

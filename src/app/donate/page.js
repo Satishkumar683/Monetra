@@ -277,6 +277,7 @@ function CausesRow({ selectedCategory, onSelectCategory }) {
 function FundraiserGrid({ selectedCategory, onSelectCategory }) {
   const [fundraisers, setFundraisers] = useState([]);
   const [category, setCategory] = useState(selectedCategory || "All");
+  const [urgentOnly, setUrgentOnly] = useState(false);
   const [search, setSearch] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [sortBy, setSortBy] = useState("recent");
@@ -303,7 +304,7 @@ function FundraiserGrid({ selectedCategory, onSelectCategory }) {
     return () => clearTimeout(timer);
   }, [search]);
 
-  // Fetch campaigns whenever category, debouncedSearch, or sortBy changes
+  // Fetch campaigns whenever category, debouncedSearch, urgentOnly or sortBy changes
   useEffect(() => {
     async function loadFundraisers() {
       try {
@@ -319,6 +320,10 @@ function FundraiserGrid({ selectedCategory, onSelectCategory }) {
 
         if (category && category !== "All") {
           params.set("category", category);
+        }
+
+        if (urgentOnly) {
+          params.set("urgent", "true");
         }
 
         if (debouncedSearch.trim()) {
@@ -343,7 +348,7 @@ function FundraiserGrid({ selectedCategory, onSelectCategory }) {
     }
 
     loadFundraisers();
-  }, [category, debouncedSearch, sortBy]);
+  }, [category, debouncedSearch, sortBy, urgentOnly]);
 
   async function handleLoadMore() {
     if (loadingMore || page >= totalPages) return;
@@ -440,6 +445,7 @@ function FundraiserGrid({ selectedCategory, onSelectCategory }) {
               className="rounded-full border-2 border-black bg-white px-4 py-2 text-xs font-black text-slate-950 shadow-solid-sm focus:outline-none cursor-pointer"
             >
               <option value="recent">Recently Added</option>
+              <option value="urgent">🚨 Most Urgent First</option>
               <option value="mostRaised">Most Raised</option>
               <option value="highestGoal">Highest Goal</option>
               <option value="oldest">Oldest First</option>
@@ -447,8 +453,22 @@ function FundraiserGrid({ selectedCategory, onSelectCategory }) {
           </div>
         </div>
 
-        {/* Category Pills */}
-        <div className="flex gap-2.5 overflow-x-auto pb-2 scrollbar-none">
+        {/* Category Pills & Urgent Toggle */}
+        <div className="flex items-center gap-2.5 overflow-x-auto pb-2 scrollbar-none">
+          {/* Urgent Quick Toggle Pill */}
+          <button
+            type="button"
+            onClick={() => setUrgentOnly((prev) => !prev)}
+            className={`shrink-0 rounded-full px-4 py-1.5 text-xs font-black transition-all border-2 border-black flex items-center gap-1.5 cursor-pointer ${
+              urgentOnly
+                ? "bg-red-600 text-white shadow-solid-sm animate-pulse"
+                : "bg-red-100 hover:bg-red-200 text-red-950 shadow-[0_2px_0_#000]"
+            }`}
+          >
+            <span>🚨</span>
+            <span>{urgentOnly ? "Urgent Causes (Active)" : "Urgent Causes Only"}</span>
+          </button>
+
           {categoryOptions.map((cat) => (
             <button
               key={cat}

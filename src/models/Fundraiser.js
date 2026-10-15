@@ -59,6 +59,22 @@ const FundraiserSchema = new Schema(
       default: true,
     },
 
+    isUrgent: {
+      type: Boolean,
+      default: false,
+    },
+
+    urgentReason: {
+      type: String,
+      default: "",
+      trim: true,
+    },
+
+    deadline: {
+      type: Date,
+      default: null,
+    },
+
     documents: {
       type: [DocumentSchema],
       default: [],
@@ -106,6 +122,7 @@ const FundraiserSchema = new Schema(
 );
 
 FundraiserSchema.index({ isActive: 1, createdAt: -1 });
+FundraiserSchema.index({ isUrgent: 1, isActive: 1, createdAt: -1 });
 FundraiserSchema.index({ verificationStatus: 1, createdAt: -1 });
 FundraiserSchema.index({ owner: 1 });
 FundraiserSchema.index({ category: 1 });

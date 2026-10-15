@@ -6,24 +6,41 @@ import FundraiserCard from "../../components/FundraiserCard";
 
 export default function Home() {
   const [featuredFundraisers, setFeaturedFundraisers] = useState([]);
+  const [urgentFundraisers, setUrgentFundraisers] = useState([]);
+  const [topDonors, setTopDonors] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showHelpModal, setShowHelpModal] = useState(false);
 
   useEffect(() => {
-    async function loadFeatured() {
+    async function loadData() {
       try {
-        const res = await fetch("/api/fundraisers?limit=6&sort=mostRaised");
-        const data = await res.json();
-        if (data.success && data.fundraisers) {
-          setFeaturedFundraisers(data.fundraisers);
+        const [featRes, urgentRes, leadRes] = await Promise.allSettled([
+          fetch("/api/fundraisers?limit=6&sort=mostRaised"),
+          fetch("/api/fundraisers?urgent=true&limit=3"),
+          fetch("/api/leaderboard?limit=3"),
+        ]);
+
+        if (featRes.status === "fulfilled") {
+          const data = await featRes.value.json();
+          if (data.success && data.fundraisers) setFeaturedFundraisers(data.fundraisers);
+        }
+
+        if (urgentRes.status === "fulfilled") {
+          const data = await urgentRes.value.json();
+          if (data.success && data.fundraisers) setUrgentFundraisers(data.fundraisers);
+        }
+
+        if (leadRes.status === "fulfilled") {
+          const data = await leadRes.value.json();
+          if (data.success && data.leaderboard) setTopDonors(data.leaderboard);
         }
       } catch (err) {
-        console.error("Failed to load featured fundraisers:", err);
+        console.error("Failed to load home data:", err);
       } finally {
         setLoading(false);
       }
     }
-    loadFeatured();
+    loadData();
   }, []);
 
   return (
@@ -164,6 +181,43 @@ export default function Home() {
       </section>
 
       {/* =========================================================================
+          URGENT CAUSES SPOTLIGHT (CRITICAL EMERGENCY SUPPORT)
+         ========================================================================= */}
+      {urgentFundraisers.length > 0 && (
+        <section className="py-12 px-6 lg:px-8 max-w-7xl mx-auto w-full">
+          <div className="rounded-[2.5rem] border-3 border-black bg-red-500/10 p-6 sm:p-10 shadow-solid-lg">
+            <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8">
+              <div>
+                <span className="inline-flex items-center gap-2 rounded-full border-2 border-black bg-red-600 text-white px-3.5 py-1 text-xs font-black shadow-solid-sm mb-3 animate-pulse">
+                  <span>🚨</span>
+                  <span>TIME-CRITICAL EMERGENCY CAUSES</span>
+                </span>
+                <h2 className="font-editorial text-3xl sm:text-4xl font-black text-slate-950 tracking-tight">
+                  Needs Immediate Support
+                </h2>
+                <p className="text-slate-700 text-xs sm:text-sm mt-1 max-w-xl font-medium">
+                  These verified campaigns require immediate financial backing for urgent surgeries, ICU costs, and emergency disaster relief.
+                </p>
+              </div>
+
+              <Link
+                href="/donate?urgent=true"
+                className="inline-flex items-center gap-2 rounded-xl border-2 border-black bg-red-600 hover:bg-red-700 text-white px-5 py-2.5 text-xs font-black shadow-solid hover:translate-y-0.5 transition-all self-start sm:self-auto"
+              >
+                View All Urgent Causes ⚡
+              </Link>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {urgentFundraisers.map((f) => (
+                <FundraiserCard key={f._id} fundraiser={f} />
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* =========================================================================
           FEATURED CAUSES SECTION
          ========================================================================= */}
       <section className="py-16 lg:py-24 px-6 lg:px-8 max-w-7xl mx-auto w-full">
@@ -201,6 +255,79 @@ export default function Home() {
           </div>
         )}
       </section>
+
+      {/* =========================================================================
+          COMMUNITY CHAMPIONS LEADERBOARD SECTION
+         ========================================================================= */}
+      {topDonors.length > 0 && (
+        <section className="py-12 lg:py-16 px-6 lg:px-8 max-w-7xl mx-auto w-full">
+          <div className="rounded-[2.5rem] border-2 border-black bg-white p-8 sm:p-12 shadow-solid-lg">
+            <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8">
+              <div>
+                <span className="inline-flex items-center gap-1.5 rounded-full border-2 border-black bg-[#e2ff3d] px-3.5 py-1 text-xs font-black text-slate-950 shadow-solid-sm mb-3">
+                  <span>🏆</span>
+                  <span>COMMUNITY LEADERBOARD</span>
+                </span>
+                <h2 className="font-editorial text-3xl sm:text-4xl font-black text-slate-950 tracking-tight">
+                  Top Generous Supporters
+                </h2>
+                <p className="text-slate-600 text-sm mt-1 max-w-xl font-medium">
+                  Celebrating community angels who lead by giving. Every rupee directly funds verified relief and climbs the community ranks.
+                </p>
+              </div>
+
+              <Link
+                href="/leaderboard"
+                className="inline-flex items-center gap-2 rounded-xl border-2 border-black bg-[#e2ff3d] hover:bg-[#d4ff00] text-slate-950 px-5 py-2.5 text-xs font-black shadow-solid hover:translate-y-0.5 transition-all self-start sm:self-auto"
+              >
+                View Full Hall of Fame &rarr;
+              </Link>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {topDonors.map((donor) => (
+                <div
+                  key={donor.donorId}
+                  className="rounded-3xl border-2 border-black bg-slate-50 p-6 flex flex-col justify-between shadow-solid hover:-translate-y-1 transition-transform"
+                >
+                  <div className="flex items-center gap-4">
+                    <div className="relative">
+                      <img
+                        src={donor.user?.image || "/default-avatar.png"}
+                        alt={donor.user?.name || "Donor"}
+                        className="w-14 h-14 rounded-full border-2 border-black object-cover shadow-solid-sm"
+                      />
+                      <span className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-white border border-black flex items-center justify-center text-xs shadow-solid-sm font-black">
+                        #{donor.rank}
+                      </span>
+                    </div>
+                    <div>
+                      <h4 className="font-editorial text-lg font-black text-slate-950 truncate max-w-[160px]">
+                        {donor.user?.name || "Anonymous Supporter"}
+                      </h4>
+                      <span className={`inline-block mt-0.5 text-[10px] font-black px-2 py-0.5 rounded-full border ${donor.badgeStyle}`}>
+                        {donor.tierBadge} {donor.tier}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="mt-6 pt-4 border-t-2 border-slate-200 flex items-center justify-between">
+                    <div>
+                      <span className="text-[10px] uppercase font-black text-slate-400">Total Donated</span>
+                      <p className="font-editorial text-xl font-black text-emerald-700">
+                        ₹{donor.totalDonated.toLocaleString()}
+                      </p>
+                    </div>
+                    <span className="text-xs font-bold text-slate-500">
+                      {donor.causesCount} causes helped
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* =========================================================================
           HOW MONETRA WORKS (3 SOLID PILLARS)

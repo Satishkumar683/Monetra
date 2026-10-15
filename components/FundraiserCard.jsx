@@ -13,6 +13,8 @@ export default function FundraiserCard({ fundraiser }) {
     owner,
     category,
     verificationStatus = "verified",
+    isUrgent = false,
+    urgentReason = "",
   } = fundraiser;
 
   const safeCurrent = currentAmount || 0;
@@ -42,6 +44,14 @@ export default function FundraiserCard({ fundraiser }) {
           {category}
         </span>
 
+        {/* Urgent Badge */}
+        {isUrgent && (
+          <span className="absolute bottom-3 left-3 rounded-full bg-red-600 text-white font-black text-[10px] border border-black px-2.5 py-0.5 flex items-center gap-1 shadow-solid-sm animate-pulse tracking-wide z-10">
+            <span>🚨</span>
+            <span>URGENT CAUSE</span>
+          </span>
+        )}
+
         {/* Verification Status Pill */}
         {isVerified ? (
           <span className="absolute top-3.5 right-3.5 rounded-full bg-white text-slate-950 font-black text-[11px] border border-black px-2.5 py-1 flex items-center gap-1 shadow-solid-sm">
@@ -60,6 +70,13 @@ export default function FundraiserCard({ fundraiser }) {
         <h3 className="font-editorial text-xl font-black text-slate-950 group-hover:text-emerald-700 transition-colors line-clamp-1 tracking-tight">
           {title}
         </h3>
+
+        {isUrgent && urgentReason && (
+          <div className="mt-2 px-3 py-1.5 rounded-xl bg-red-50 border border-red-200 text-red-800 text-[11px] font-black flex items-center gap-1.5 shadow-[0_1px_0_#000]">
+            <span>⚡ Need:</span>
+            <span className="truncate">{urgentReason}</span>
+          </div>
+        )}
 
         <p className="mt-2 text-xs text-slate-600 line-clamp-2 leading-relaxed flex-1 font-medium">
           {description}

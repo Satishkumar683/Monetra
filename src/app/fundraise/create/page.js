@@ -22,6 +22,8 @@ export default function CreateFundraiserPage() {
     description: "",
     targetAmount: "",
     category: CATEGORIES[0],
+    isUrgent: false,
+    urgentReason: "",
   });
   const [coverImage, setCoverImage] = useState("");
   const [imagePreview, setImagePreview] = useState(null);
@@ -372,6 +374,49 @@ export default function CreateFundraiserPage() {
                 ))}
               </select>
             </div>
+          </div>
+
+          {/* Urgent Emergency Cause Toggle */}
+          <div className="rounded-2xl border-2 border-black bg-red-50 p-4 sm:p-5 shadow-solid-sm space-y-3">
+            <div className="flex items-center justify-between gap-4">
+              <div className="flex items-start sm:items-center gap-2.5">
+                <span className="text-xl shrink-0">🚨</span>
+                <div>
+                  <h4 className="font-editorial text-sm font-black text-slate-950">
+                    Is this an urgent or emergency cause?
+                  </h4>
+                  <p className="text-xs text-slate-600 font-medium">
+                    Highlights this campaign on the home page urgent spotlight with special urgency badges.
+                  </p>
+                </div>
+              </div>
+              <input
+                type="checkbox"
+                id="isUrgent"
+                name="isUrgent"
+                checked={form.isUrgent}
+                onChange={(e) => setForm((prev) => ({ ...prev, isUrgent: e.target.checked }))}
+                className="w-5 h-5 accent-red-600 rounded border-2 border-black cursor-pointer shrink-0"
+              />
+            </div>
+
+            {form.isUrgent && (
+              <div className="pt-2 border-t border-red-200">
+                <label htmlFor="urgentReason" className="block text-xs font-black text-red-950 mb-1">
+                  Urgency Details (e.g. "Surgery scheduled in 48 hours", "Urgent ICU funds needed")
+                </label>
+                <input
+                  id="urgentReason"
+                  name="urgentReason"
+                  type="text"
+                  maxLength={100}
+                  value={form.urgentReason}
+                  onChange={handleChange}
+                  placeholder="Explain why immediate support is required..."
+                  className="w-full rounded-xl border-2 border-black bg-white px-3.5 py-2 text-xs font-bold text-slate-950 shadow-[0_1px_0_#000] focus:outline-none"
+                />
+              </div>
+            )}
           </div>
 
           <div>

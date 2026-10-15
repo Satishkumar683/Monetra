@@ -6,6 +6,9 @@ export const createFundraiserSchema = z.object({
   targetAmount: z.number().positive("Target amount must be greater than zero"),
   category: z.enum(["Education", "Healthcare", "Animal Welfare", "Environment", "Disaster Relief", "Child Welfare"]),
   coverImage: z.string().min(1, "Cover image is required"),
+  isUrgent: z.boolean().optional().default(false),
+  urgentReason: z.string().max(200).optional().default(""),
+  deadline: z.string().or(z.date()).optional().nullable(),
   documents: z.array(
     z.object({
       name: z.string(),

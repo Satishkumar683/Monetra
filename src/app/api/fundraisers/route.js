@@ -98,17 +98,33 @@ export async function GET(req) {
       query.category = category;
     }
 
+    const urgent = searchParams.get("urgent");
+    if (urgent === "true") {
+      query.$or = [
+        { isUrgent: true },
+        { category: { $in: ["Healthcare", "Disaster Relief"] } },
+      ];
+    }
+
     if (search && search.trim()) {
       const cleanSearch = search.trim();
-      query.$or = [
+      const searchCondition = [
         { title: { $regex: cleanSearch, $options: "i" } },
         { description: { $regex: cleanSearch, $options: "i" } },
       ];
+      if (query.$or) {
+        query.$and = [{ $or: query.$or }, { $or: searchCondition }];
+        delete query.$or;
+      } else {
+        query.$or = searchCondition;
+      }
     }
 
     // Sort order definition
     let sortOptions = { createdAt: -1 };
-    if (sortBy === "mostRaised") {
+    if (sortBy === "urgent") {
+      sortOptions = { isUrgent: -1, createdAt: -1 };
+    } else if (sortBy === "mostRaised") {
       sortOptions = { currentAmount: -1 };
     } else if (sortBy === "highestGoal") {
       sortOptions = { targetAmount: -1 };
